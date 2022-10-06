@@ -27,13 +27,12 @@
     "./src"
   ],
   "bin": {
-    "create-carrot-template": "./dist/index.js",
-    "cct": "./dist/index.js"
+    "create-carrot-template": "./src/index.js",
+    "cct": "./src/index.js"
   },
   "scripts": {
     "lint": "eslint ./src/** && prettier --check ./src",
     "lint:commit-message": "commitlint --config commitlintrc.cjs -e",
-    "clean": "rimraf ./dist",
     "prepare": "husky install"
   },
   "dependencies": {
