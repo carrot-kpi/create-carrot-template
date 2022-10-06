@@ -32,7 +32,7 @@
   },
   "scripts": {
     "lint": "eslint ./src/** && prettier --check ./src",
-    "lint:commit-message": "commitlint -e",
+    "lint:commit-message": "commitlint --config commitlintrc.cjs -e",
     "clean": "rimraf ./dist",
     "prepare": "husky install"
   },
@@ -47,6 +47,8 @@
     "validate-npm-package-name": "^3.0.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.1.2",
+    "@commitlint/config-conventional": "^17.1.0",
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^14.1.0",
     "@types/envinfo": "^7.8.1",
