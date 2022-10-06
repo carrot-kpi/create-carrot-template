@@ -70,6 +70,24 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     process.exit(0)
   }
 
+  if (options.kpiToken && options.oracle) {
+    console.error('Please specify only one template type:')
+    console.log(
+      `  ${cyan('create-carrot-template')} ${green(
+        '--kpi-token'
+      )} [options] <template-directory>`
+    )
+    console.log('  or')
+    console.log(
+      `  ${cyan('create-carrot-template')} ${green(
+        '--oracle'
+      )} [options] <template-directory>`
+    )
+    console.log()
+    console.log(`Run ${cyan(`${'create-carrot-template'} --help`)} to see all options.`)
+    process.exit(0)
+  }
+
   await ensureLatestVersion(pkg.name, pkg.version)
 
   const absoluteProjectPath = pathResolve(projectDirectory)
