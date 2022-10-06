@@ -11,7 +11,7 @@ import copy from 'cpy'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const { bold, cyan, green, red } = chalk
-const { ensureDirSync, readdirSync, readJSONSync, writeFile } = fsExtra
+const { ensureDirSync, readdirSync, readJSONSync, writeFile, renameSync } = fsExtra
 const { run: envInfoRun } = envinfo
 
 const pkg = fsExtra.readJSONSync(join(__dirname, '../package.json'))
@@ -120,6 +120,10 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
   const projectPkgPath = join(projectBasePath, './package.json')
   const projectPkg = readJSONSync(projectPkgPath)
   projectPkg.name = projectName
+  renameSync(
+    join(absoluteProjectPath, 'gitignore'),
+    join(absoluteProjectPath, '.gitignore')
+  )
   await writeFile(projectPkgPath, JSON.stringify(projectPkg, undefined, 2))
   ensureDirSync(join(absoluteProjectPath, './packages'))
   spinner.succeed('Base project set up')
