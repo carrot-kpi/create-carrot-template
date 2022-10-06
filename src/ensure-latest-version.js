@@ -33,7 +33,7 @@ export const ensureLatestVersion = async (name, version) => {
       })
     })
     const { latest } = response
-    if (!latest) logErrorAndExit()
+    if (!latest) logErrorAndExit(name)
     if (latest && semver.lt(version, latest)) {
       console.log()
       console.error(
@@ -46,6 +46,6 @@ export const ensureLatestVersion = async (name, version) => {
       process.exit(0)
     }
   } catch (error) {
-    logErrorAndExit()
+    logErrorAndExit(name)
   }
 }
