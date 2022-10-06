@@ -177,7 +177,9 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
   try {
     spinner.start(`Setting up frontend using preset ${green(frontendPreset)}\n`)
     await execSync(
-      `git clone https://github.com/carrot-kpi/cct-frontend-preset-${frontendPreset}.git ./packages/frontend`,
+      `git clone https://github.com/carrot-kpi/cct-frontend-${
+        options.kpiToken ? 'kpi-token' : 'oracle'
+      }-preset-${frontendPreset}.git ./packages/frontend`,
       { stdio: options.verbose ? 'inherit' : 'ignore' }
     )
     spinner.succeed(`Frontend preset ${green(frontendPreset)} set up`)
