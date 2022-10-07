@@ -143,7 +143,10 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     join(absoluteProjectPath, 'gitignore'),
     join(absoluteProjectPath, '.gitignore')
   )
-  await writeFile(projectPkgPath, JSON.stringify(projectPkg, undefined, 2))
+  await writeFile(
+    join(absoluteProjectPath, './package.json'),
+    JSON.stringify(projectPkg, undefined, 2)
+  )
   ensureDirSync(join(absoluteProjectPath, './packages'))
   spinner.succeed('Base project set up')
 
