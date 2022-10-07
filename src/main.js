@@ -205,6 +205,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
   try {
     spinner.start('Initializing git repository\n')
     execSync('git init', { stdio: options.verbose ? 'inherit' : 'ignore' })
+    if (options.verbose) execSync('git status', { stdio: 'inherit' })
     spinner.succeed('Git repository initialized')
   } catch (error) {
     spinner.fail('Aborting installation.')
