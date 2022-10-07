@@ -11,7 +11,8 @@ import copy from 'cpy'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const { bold, cyan, green, red } = chalk
-const { ensureDirSync, readdirSync, readJSONSync, writeFile, renameSync } = fsExtra
+const { ensureDirSync, readdirSync, readJSONSync, writeFile, renameSync, removeSync } =
+  fsExtra
 const { run: envInfoRun } = envinfo
 
 const pkg = fsExtra.readJSONSync(join(__dirname, '../package.json'))
@@ -160,6 +161,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
       }-preset-${contractsPreset}.git ./packages/contracts`,
       { stdio: options.verbose ? 'inherit' : 'ignore' }
     )
+    removeSync(join(absoluteProjectPath, './packages/contracts/.git'))
     spinner.succeed(`Contracts preset ${green(contractsPreset)} set up`)
   } catch (error) {
     spinner.fail('Aborting installation.')
@@ -176,12 +178,13 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
   spinner = ora()
   try {
     spinner.start(`Setting up frontend using preset ${green(frontendPreset)}\n`)
-    await execSync(
+    execSync(
       `git clone https://github.com/carrot-kpi/cct-frontend-${
         options.kpiToken ? 'kpi-token' : 'oracle'
       }-preset-${frontendPreset}.git ./packages/frontend`,
       { stdio: options.verbose ? 'inherit' : 'ignore' }
     )
+    removeSync(join(absoluteProjectPath, './packages/frontend/.git'))
     spinner.succeed(`Frontend preset ${green(frontendPreset)} set up`)
   } catch (error) {
     spinner.fail('Aborting installation.')
