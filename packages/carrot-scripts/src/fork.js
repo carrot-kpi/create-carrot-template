@@ -90,7 +90,7 @@ const main = async () => {
 
     const accounts = await ganacheServer.provider.getInitialAccounts()
     const account = Object.values(accounts)[0]
-    secretKey - account.secretKey
+    secretKey = account.secretKey
     ganacheProvider = new providers.JsonRpcProvider(`http://localhost:${PORT}`)
     signer = new Wallet(secretKey, ganacheProvider)
     ganacheSpinner.succeed(`Started up local node with fork URL ${forkUrl}`)
