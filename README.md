@@ -1,7 +1,6 @@
 # Create Carrot Template
 
-Create Carrot templates in an easier way to bootstrap projects that implement Carrot
-templates.
+Create Carrot template allows bootstrapping Carrot template projects in an easier way.
 
 Create Carrot Template works on macOS, Windows, and Linux.<br> If you're having any issue,
 please
