@@ -14,6 +14,7 @@
     "test:contracts": "npm test -w ./packages/contracts",
     "coverage:contracts": "npm run coverage -w ./packages/contracts",
     "test:all": "npm run test:frontend && npm run test:contracts",
+    "fork": "carrot-scripts-fork ./packages/contracts/fork/deploy.js",
     "start:frontend": "npm start -w ./packages/frontend",
     "lint:commit-message": "commitlint -e",
     "prepare": "husky install"
@@ -21,10 +22,5 @@
   "workspaces": [
     "packages/contracts",
     "packages/frontend"
-  ],
-  "devDependencies": {
-    "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
-    "husky": "^8.0.1"
-  }
+  ]
 }

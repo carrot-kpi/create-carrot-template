@@ -222,9 +222,10 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
   spinner = ora()
   try {
     spinner.start('Installing dependencies')
-    execSync('npm install', {
-      stdio: options.verbose ? 'inherit' : 'ignore',
-    })
+    execSync(
+      'npm install --save-dev @commitlint/cli @commitlint/config-conventional husky carrot-scripts',
+      { stdio: options.verbose ? 'inherit' : 'ignore' }
+    )
     spinner.succeed('Dependencies installed')
   } catch (error) {
     spinner.fail('Aborting installation.')
