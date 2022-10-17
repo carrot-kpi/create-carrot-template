@@ -62,7 +62,7 @@ const main = async () => {
     `Starting up local node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
   )
   const chainAddresses = CHAIN_ADDRESSES[forkedNetworkChainId]
-  let ganacheProvider, kpiTokensManager, kpiTokensManagerOwner, signer
+  let ganacheProvider, kpiTokensManager, kpiTokensManagerOwner, signer, secretKey
   try {
     kpiTokensManager = new Contract(
       chainAddresses.kpiTokensManager,
@@ -89,7 +89,8 @@ const main = async () => {
     })
 
     const accounts = await ganacheServer.provider.getInitialAccounts()
-    const { secretKey } = Object.values(accounts)[0]
+    const account = Object.values(accounts)[0]
+    secretKey - account.secretKey
     ganacheProvider = new providers.JsonRpcProvider(`http://localhost:${PORT}`)
     signer = new Wallet(secretKey, ganacheProvider)
     ganacheSpinner.succeed(`Started up local node with fork URL ${forkUrl}`)
@@ -150,7 +151,7 @@ const main = async () => {
   console.log('Used account:')
   console.log()
   console.log('  Address:', signer.address)
-  console.log('  Private key:', signer)
+  console.log('  Private key:', secretKey)
   console.log()
   console.log('RPC endpoint:')
   console.log()
