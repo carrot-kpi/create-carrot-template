@@ -291,9 +291,9 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
   console.log(chalk.cyan(`  npm run test:all`))
   console.log('    Runs both the contracts and the frontend test suite.')
   console.log()
-  console.log(chalk.cyan(`  npm run start:frontend`))
+  console.log(chalk.cyan(`  npm run start`))
   console.log(
-    "    Starts a development server through which to dynamically interact with the template's frontend in the browser."
+    '    Spins up a local node, forking a given chain (determined by the given RPC endpoint) and a frontend playground interfacing with the local fork.'
   )
   console.log()
   console.log('Happy hacking!')
