@@ -17,9 +17,6 @@
     "url": "https://github.com/carrot-kpi/create-carrot-template.git"
   },
   "license": "GPL-3.0-or-later",
-  "engines": {
-    "node": ">=14"
-  },
   "bugs": {
     "url": "https://github.com/carrot-kpi/create-carrot-template/issues"
   },
