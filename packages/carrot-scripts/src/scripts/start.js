@@ -127,7 +127,7 @@ try {
   )
   kpiTokensManagerOwner = await kpiTokensManager.owner()
   const ganacheServer = ganache.server({
-    fork: { url: forkUrl },
+    fork: { url: forkUrl, deleteCache: true, disableCache: true },
     chain: {
       chainId: forkedNetworkChainId,
     },
@@ -136,7 +136,6 @@ try {
       hdPath: DERIVATION_PATH,
       unlockedAccounts: [kpiTokensManagerOwner],
     },
-    deleteCache: true,
     logging: {
       quiet: true,
     },
