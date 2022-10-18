@@ -14,8 +14,7 @@
     "test:contracts": "npm test -w ./packages/contracts",
     "coverage:contracts": "npm run coverage -w ./packages/contracts",
     "test:all": "npm run test:frontend && npm run test:contracts",
-    "fork": "carrot-scripts-fork ./packages/contracts/fork/deploy.js",
-    "start:frontend": "npm start -w ./packages/frontend",
+    "start": "carrot-scripts start",
     "lint:commit-message": "commitlint -e",
     "prepare": "husky install"
   },
