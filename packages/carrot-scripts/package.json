@@ -30,7 +30,7 @@
     "lint": "eslint ./src/** && prettier --check ./src"
   },
   "bin": {
-    "carrot-scripts-fork": "./src/fork.js"
+    "carrot-scripts": "./src/index.js"
   },
   "dependencies": {
     "@carrot-kpi/contracts": "^0.1.0",

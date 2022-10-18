@@ -13,14 +13,14 @@ import {
 import ora from 'ora'
 import chalk from 'chalk'
 import ganache from 'ganache'
-import { clearConsole } from './utils/index.js'
+import { clearConsole } from '../utils/index.js'
 import { resolve } from 'path'
 
 const PORT = 8545
 const MNEMONIC = 'test test test test test test test test test test test junk'
 const DERIVATION_PATH = "m/44'/60'/0'/0/0"
 
-const [, , deploymentScriptLocation, forkUrl] = process.argv
+const [deploymentScriptLocation, forkUrl] = process.argv.slice(2)
 if (!forkUrl) {
   console.error('An RPC URL is needed to fork')
   process.exit(0)
@@ -31,21 +31,30 @@ clearConsole()
 const main = async () => {
   const forkCheckSpinner = ora()
   forkCheckSpinner.start(`Checking forked network chain id`)
-  const forkNetworkProvider = new providers.JsonRpcProvider(forkUrl)
-  const { chainId: forkedNetworkChainId } = await forkNetworkProvider.getNetwork()
-  if (!(forkedNetworkChainId in ChainId)) {
-    forkCheckSpinner.fail(`Incompatible forked chain id ${forkedNetworkChainId}`)
-    console.log()
-    console.log(
-      'Compatible chain ids are:',
-      Object.values(ChainId)
-        .filter((chainId) => !isNaN(chainId))
-        .join(', ')
-    )
+  let forkedNetworkChainId, forkNetworkProvider
+  try {
+    forkNetworkProvider = new providers.JsonRpcProvider(forkUrl)
+    const network = await forkNetworkProvider.getNetwork()
+    forkedNetworkChainId = network.chainId
+    if (!(forkedNetworkChainId in ChainId)) {
+      forkCheckSpinner.fail(`Incompatible forked chain id ${forkedNetworkChainId}`)
+      console.log()
+      console.log(
+        'Compatible chain ids are:',
+        Object.values(ChainId)
+          .filter((chainId) => !isNaN(chainId))
+          .join(', ')
+      )
 
-    process.exit(0)
+      process.exit(0)
+    }
+    forkCheckSpinner.succeed(`Compatible forked chain id ${forkedNetworkChainId}`)
+  } catch (error) {
+    forkCheckSpinner.fail(
+      `Error determining the forked chain id. Maybe your fork URL is malformed?`
+    )
+    process.exit()
   }
-  forkCheckSpinner.succeed(`Compatible forked chain id ${forkedNetworkChainId}`)
 
   const compileSpinner = ora()
   compileSpinner.start(`Compiling contracts`)
