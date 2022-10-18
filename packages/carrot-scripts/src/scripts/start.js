@@ -15,20 +15,51 @@ import chalk from 'chalk'
 import ganache from 'ganache'
 import { clearConsole } from '../utils/index.js'
 import { resolve } from 'path'
+import { existsSync } from 'fs'
 
 const PORT = 8545
 const MNEMONIC = 'test test test test test test test test test test test junk'
 const DERIVATION_PATH = "m/44'/60'/0'/0/0"
 
-const [deploymentScriptLocation, forkUrl] = process.argv.slice(2)
+const [forkUrl, deploymentScriptLocation] = process.argv.slice(2)
 if (!forkUrl) {
   console.error('An RPC URL is needed to fork')
+  process.exit(0)
+}
+
+const validatedDeploymentScriptLocation = !deploymentScriptLocation
+  ? resolve('./packages/contracts/fork/deploy.js')
+  : resolve(deploymentScriptLocation)
+
+if (!existsSync(validatedDeploymentScriptLocation)) {
+  console.log(
+    `No script exists at the ${
+      !deploymentScriptLocation ? 'default' : 'specified'
+    } location:\n\n  ${chalk.cyan(validatedDeploymentScriptLocation)}`
+  )
+  console.log()
+  console.log(
+    'Please pass a custom local fork deployment script location in the following way:'
+  )
+  console.log()
+  console.log(
+    `  ${chalk.cyan('carrot-scripts start <FORK_URL>')} ${chalk.green(
+      './path/to/deployment-script.js'
+    )}`
+  )
   process.exit(0)
 }
 
 clearConsole()
 
 const main = async () => {
+  console.log(
+    `Using local fork deployment script location:\n\n  ${chalk.cyan(
+      validatedDeploymentScriptLocation
+    )}`
+  )
+  console.log()
+
   const forkCheckSpinner = ora()
   forkCheckSpinner.start(`Checking forked network chain id`)
   let forkedNetworkChainId, forkNetworkProvider
@@ -126,7 +157,7 @@ const main = async () => {
     multicall = new Contract(chainAddresses.multicall, MULTICALL_ABI, signer)
 
     const predictedTemplateId = await kpiTokensManager.templatesAmount()
-    const { deploy } = await import(resolve(deploymentScriptLocation))
+    const { deploy } = await import(validatedDeploymentScriptLocation)
     const deployData = await deploy(
       factory,
       kpiTokensManager,
