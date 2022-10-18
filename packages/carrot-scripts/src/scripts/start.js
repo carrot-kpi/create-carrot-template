@@ -96,7 +96,9 @@ try {
   forkCheckSpinner.fail(
     `Error determining the forked chain id. Maybe your fork URL is malformed?`
   )
-  process.exit()
+  console.log()
+  console.log(error)
+  process.exit(1)
 }
 
 const compileSpinner = ora()
@@ -106,7 +108,9 @@ try {
   compileSpinner.succeed('Contracts compiled')
 } catch (error) {
   compileSpinner.fail('Could not compile contracts')
-  process.exit(0)
+  console.log()
+  console.log(error)
+  process.exit(1)
 }
 
 const ganacheSpinner = ora()
@@ -153,7 +157,9 @@ try {
   ganacheSpinner.fail(
     `Could not start up node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
   )
-  process.exit(0)
+  console.log()
+  console.log(error)
+  process.exit(1)
 }
 
 const templateDeploymentSpinner = ora()
@@ -201,7 +207,9 @@ try {
   templateDeploymentSpinner.fail(
     'Could not deploy and set up custom template on target network'
   )
-  process.exit(0)
+  console.log()
+  console.log(error)
+  process.exit(1)
 }
 
 const frontendSpinner = ora()
@@ -234,7 +242,7 @@ try {
   frontendSpinner.succeed('Local playground started up')
 } catch (error) {
   frontendSpinner.fail('Could not start up local playground')
-  console.error(error)
-
-  process.exit(0)
+  console.log()
+  console.log(error)
+  process.exit(1)
 }
