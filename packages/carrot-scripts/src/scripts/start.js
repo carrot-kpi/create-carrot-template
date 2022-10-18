@@ -49,9 +49,10 @@ const printInformation = (
   console.log('  Oracles manager:', oraclesManagerAddress)
   console.log('  Multicall:', multicallAddress)
   console.log('  Template:', templateContractAddress)
-  customContracts.map(({ name, address }) => {
-    console.log(`  ${name}:`, address)
-  })
+  if (customContracts)
+    customContracts.map(({ name, address }) => {
+      console.log(`  ${name}:`, address)
+    })
 }
 
 const [forkUrl] = process.argv.slice(2)
