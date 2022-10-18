@@ -136,6 +136,7 @@ try {
       hdPath: DERIVATION_PATH,
       unlockedAccounts: [kpiTokensManagerOwner],
     },
+    deleteCache: true,
     logging: {
       quiet: true,
     },
