@@ -56,7 +56,11 @@ const printInformation = (
 
 const [forkUrl] = process.argv.slice(2)
 if (!forkUrl) {
-  console.error('An RPC URL is needed to fork')
+  console.error('Please specify an RPC endpoint to fork from.')
+  console.error('If invoking directly:')
+  console.log(`  ${chalk.cyan('carrot-scripts')} start ${chalk.green('<rpc-endpoint>')}`)
+  console.log('  or if invoking from a Carrot Create Template project:')
+  console.log(`  ${chalk.cyan('npm start')} -- ${chalk.green('<rpc_endpoint>')}`)
   process.exit(0)
 }
 
