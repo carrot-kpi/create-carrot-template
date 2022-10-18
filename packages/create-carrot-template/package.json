@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "create-carrot-template",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "keywords": [
     "ethereum",
     "web3",
