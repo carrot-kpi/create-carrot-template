@@ -32,13 +32,15 @@
   "bin": {
     "carrot-scripts": "./src/index.js"
   },
+  "types": "./lib/carrot-template.d.ts",
   "dependencies": {
     "@carrot-kpi/contracts": "^0.1.0",
-    "@carrot-kpi/sdk": "^1.0.1",
+    "@carrot-kpi/sdk": "^1.4.0",
     "@ganache/options": "^0.5.3",
     "chalk": "^4.1.2",
     "ethers": "^5.7.1",
     "ganache": "^7.4.4",
+    "ipfs-daemon": "^0.15.0",
     "ora": "^6.1.2"
   }
 }

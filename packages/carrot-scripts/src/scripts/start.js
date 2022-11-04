@@ -13,13 +13,20 @@ import {
 import ora from 'ora'
 import chalk from 'chalk'
 import ganache from 'ganache'
+import { Daemon } from 'ipfs-daemon'
 import { clearConsole } from '../utils/index.js'
-import { resolve } from 'path'
+import { join, resolve } from 'path'
+import { readFileSync } from 'fs'
+import { homedir } from 'os'
 import { Writable } from 'stream'
 
-const PORT = 8545
+const GANACHE_PORT = 9001
+const IPFS_GATEWAY_API_PORT = 9090
+const IPFS_HTTP_API_PORT = 5002
+const IPFS_RPC_API_PORT = 5003
 const MNEMONIC = 'test test test test test test test test test test test junk'
 const DERIVATION_PATH = "m/44'/60'/0'/0/0"
+const IPFS_REPO_PATH = join(homedir(), '.cct/ipfs')
 
 const printInformation = (
   deploymentAccountAddress,
@@ -33,16 +40,23 @@ const printInformation = (
 ) => {
   console.log(chalk.green('Local playground successfully started up on target network!'))
   console.log()
-  console.log('Used account:')
+  console.log(chalk.cyan('Used chain-setup account:'))
   console.log()
   console.log('  Address:', deploymentAccountAddress)
   console.log('  Private key:', deploymentAccountSecretKey)
   console.log()
-  console.log('RPC endpoint:')
+  console.log(chalk.cyan('RPC endpoints:'))
   console.log()
-  console.log('  http://localhost:8545')
+  console.log(`  http://localhost:${GANACHE_PORT}`)
+  console.log(`  ws://localhost:${GANACHE_PORT}`)
   console.log()
-  console.log('Contract addresses:')
+  console.log(chalk.cyan('IPFS endpoints:'))
+  console.log()
+  console.log(`  - Gateway: http://localhost:${IPFS_GATEWAY_API_PORT}`)
+  console.log(`  - HTTP API: http://localhost:${IPFS_HTTP_API_PORT}`)
+  console.log(`  - RPC API: http://localhost:${IPFS_RPC_API_PORT}`)
+  console.log()
+  console.log(chalk.cyan('Contract addresses:'))
   console.log()
   console.log('  KPI tokens factory:', factoryAddress)
   console.log('  KPI tokens manager:', kpiTokensManagerAddress)
@@ -53,6 +67,8 @@ const printInformation = (
     customContracts.map(({ name, address }) => {
       console.log(`  ${name}:`, address)
     })
+  console.log()
+  console.log(chalk.cyan('Frontend log:'))
 }
 
 const [forkUrl] = process.argv.slice(2)
@@ -65,7 +81,8 @@ if (!forkUrl) {
   process.exit(0)
 }
 
-const deployToForkScriptLocation = resolve('./packages/contracts/.cct/deploy-to-fork.js')
+const setupForkScriptLocation = resolve('./packages/contracts/.cct/setup-fork.js')
+const specificationLocation = resolve('./packages/frontend/src/base.json')
 const startPlaygroundScriptLocation = resolve(
   './packages/frontend/.cct/start-playground.js'
 )
@@ -144,19 +161,67 @@ try {
     ganacheServer.once('open').then(() => {
       resolve()
     })
-    ganacheServer.listen(PORT).catch(reject)
+    ganacheServer.listen(GANACHE_PORT).catch(reject)
   })
 
   const accounts = await ganacheServer.provider.getInitialAccounts()
   const account = Object.values(accounts)[0]
   secretKey = account.secretKey
-  ganacheProvider = new providers.JsonRpcProvider(`http://localhost:${PORT}`)
+  ganacheProvider = new providers.JsonRpcProvider(`http://localhost:${GANACHE_PORT}`)
   signer = new Wallet(secretKey, ganacheProvider)
   ganacheSpinner.succeed(`Started up local node with fork URL ${forkUrl}`)
 } catch (error) {
   ganacheSpinner.fail(
     `Could not start up node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
   )
+  console.log()
+  console.log(error)
+  process.exit(1)
+}
+
+const ipfsNodeSpinner = ora()
+ipfsNodeSpinner.start('Starting up local IPFS node')
+let ipfs, specificationCid
+try {
+  const daemon = new Daemon({
+    silent: true,
+    repo: IPFS_REPO_PATH,
+    start: false,
+    config: {
+      API: {
+        HTTPHeaders: {
+          'Access-Control-Allow-Origin': [
+            'http://127.0.0.1:9000',
+            'http://127.0.0.1:9000/',
+            'http://localhost:9000',
+            'http://localhost:9000/',
+          ],
+        },
+      },
+    },
+  })
+  await daemon.start()
+  ipfs = daemon._ipfs
+
+  const cleanup = async () => {
+    console.log()
+    const cleanupSpinner = ora()
+    cleanupSpinner.start('Received interrupt signal, gracefully shutting down')
+    await daemon.stop()
+    cleanupSpinner.succeed('Gracefully shut down')
+    process.exit(0)
+  }
+
+  process.on('SIGTERM', cleanup)
+  process.on('SIGINT', cleanup)
+  process.on('SIGHUP', cleanup)
+
+  await ipfs.start()
+  const result = await ipfs.add(readFileSync(specificationLocation).toString())
+  specificationCid = result.cid.toString()
+  ipfsNodeSpinner.succeed('Started up local IPFS node')
+} catch (error) {
+  ipfsNodeSpinner.fail('Could not start up local IPFS node')
   console.log()
   console.log(error)
   process.exit(1)
@@ -171,6 +236,7 @@ let factory,
   multicall,
   templateContract,
   customContracts,
+  frontendGlobals,
   predictedTemplateId
 try {
   factory = new Contract(chainAddresses.factory, FACTORY_ABI, signer)
@@ -182,9 +248,9 @@ try {
   )
   multicall = new Contract(chainAddresses.multicall, MULTICALL_ABI, signer)
 
-  predictedTemplateId = await kpiTokensManager.templatesAmount()
-  const { deployToFork } = await import(deployToForkScriptLocation)
-  const deploymentData = await deployToFork(
+  predictedTemplateId = (await kpiTokensManager.templatesAmount()).add('1')
+  const { setupFork } = await import(setupForkScriptLocation)
+  const setupResult = await setupFork(
     factory,
     kpiTokensManager,
     oraclesManager,
@@ -192,12 +258,13 @@ try {
     predictedTemplateId.toNumber() + 1,
     signer
   )
-  templateContract = deploymentData.templateContract
-  customContracts = deploymentData.customContracts
+  templateContract = setupResult.templateContract
+  customContracts = setupResult.customContracts
+  frontendGlobals = setupResult.frontendGlobals
 
   await kpiTokensManager
     .connect(ganacheProvider.getSigner(kpiTokensManagerOwner))
-    .addTemplate(templateContract.address, 'specification', {
+    .addTemplate(templateContract.address, specificationCid, {
       from: kpiTokensManagerOwner,
     })
   templateDeploymentSpinner.succeed(
@@ -220,6 +287,24 @@ try {
     forkedNetworkChainId,
     predictedTemplateId,
     secretKey,
+    Object.entries(frontendGlobals).reduce(
+      (accumulator, [key, rawValue]) => {
+        accumulator[key] = JSON.stringify(rawValue)
+        return accumulator
+      },
+      {
+        __DEV__: JSON.stringify(true),
+        CCT_RPC_URL: JSON.stringify(ganacheProvider.connection.url),
+        CCT_IPFS_GATEWAY_URL: JSON.stringify(
+          `http://localhost:${IPFS_GATEWAY_API_PORT}/ipfs`
+        ),
+        CCT_IPFS_HTTP_API_URL: JSON.stringify(`http://localhost:${IPFS_HTTP_API_PORT}/`),
+        CCT_IPFS_RPC_API_URL: JSON.stringify(`http://localhost:${IPFS_RPC_API_PORT}/`),
+        CCT_CHAIN_ID: JSON.stringify(forkedNetworkChainId),
+        CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId.toString()),
+        CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY: JSON.stringify(secretKey),
+      }
+    ),
     new Writable({
       write(chunk, _, callback) {
         clearConsole()
@@ -234,12 +319,12 @@ try {
           customContracts
         )
         console.log()
-        console.log(chunk.toString())
+        console.log(chunk.toString().replace(/^/gm, `  `))
         callback()
       },
     })
   )
-  frontendSpinner.succeed('Local playground started up')
+  frontendSpinner.stop()
 } catch (error) {
   frontendSpinner.fail('Could not start up local playground')
   console.log()
