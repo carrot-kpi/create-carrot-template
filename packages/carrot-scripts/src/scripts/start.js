@@ -205,10 +205,9 @@ try {
 
   const cleanup = async () => {
     console.log()
-    const cleanupSpinner = ora()
-    cleanupSpinner.start('Received interrupt signal, gracefully shutting down')
+    console.log('Received interrupt signal, gracefully shutting down')
     await daemon.stop()
-    cleanupSpinner.succeed('Gracefully shut down')
+    await ipfs.stop()
     process.exit(0)
   }
 
