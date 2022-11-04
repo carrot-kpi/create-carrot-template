@@ -248,14 +248,14 @@ try {
   )
   multicall = new Contract(chainAddresses.multicall, MULTICALL_ABI, signer)
 
-  predictedTemplateId = (await kpiTokensManager.templatesAmount()).add('1')
+  predictedTemplateId = (await kpiTokensManager.templatesAmount()).add('1').toNumber()
   const { setupFork } = await import(setupForkScriptLocation)
   const setupResult = await setupFork(
     factory,
     kpiTokensManager,
     oraclesManager,
     multicall,
-    predictedTemplateId.toNumber() + 1,
+    predictedTemplateId,
     signer
   )
   templateContract = setupResult.templateContract
@@ -301,7 +301,7 @@ try {
         CCT_IPFS_HTTP_API_URL: JSON.stringify(`http://localhost:${IPFS_HTTP_API_PORT}/`),
         CCT_IPFS_RPC_API_URL: JSON.stringify(`http://localhost:${IPFS_RPC_API_PORT}/`),
         CCT_CHAIN_ID: JSON.stringify(forkedNetworkChainId),
-        CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId.toString()),
+        CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId),
         CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY: JSON.stringify(secretKey),
       }
     ),
