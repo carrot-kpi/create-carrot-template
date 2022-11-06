@@ -16,7 +16,7 @@ import ganache from 'ganache'
 import { Daemon } from 'ipfs-daemon'
 import { clearConsole } from '../utils/index.js'
 import { join, resolve } from 'path'
-import { readFileSync } from 'fs'
+import { existsSync, readFileSync, rmSync } from 'fs'
 import { homedir } from 'os'
 import { Writable } from 'stream'
 
@@ -181,8 +181,13 @@ try {
 
 const ipfsNodeSpinner = ora()
 ipfsNodeSpinner.start('Starting up local IPFS node')
-let ipfs, specificationCid
+let specificationCid
 try {
+  if (existsSync(IPFS_REPO_PATH))
+    rmSync(IPFS_REPO_PATH, {
+      force: true,
+      recursive: true,
+    })
   const daemon = new Daemon({
     silent: true,
     repo: IPFS_REPO_PATH,
@@ -201,13 +206,13 @@ try {
     },
   })
   await daemon.start()
-  ipfs = daemon._ipfs
+  await daemon._ipfs.start()
 
   const cleanup = async () => {
     console.log()
     console.log('Received interrupt signal, gracefully shutting down')
     await daemon.stop()
-    await ipfs.stop()
+    await daemon._ipfs.stop()
     process.exit(0)
   }
 
@@ -215,8 +220,7 @@ try {
   process.on('SIGINT', cleanup)
   process.on('SIGHUP', cleanup)
 
-  await ipfs.start()
-  const result = await ipfs.add(readFileSync(specificationLocation).toString())
+  const result = await daemon._ipfs.add(readFileSync(specificationLocation).toString())
   specificationCid = result.cid.toString()
   ipfsNodeSpinner.succeed('Started up local IPFS node')
 } catch (error) {
