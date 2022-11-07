@@ -24,7 +24,8 @@
     "url": "https://github.com/carrot-kpi/create-carrot-template/issues"
   },
   "files": [
-    "./src"
+    "./src",
+    "./lib"
   ],
   "scripts": {
     "lint": "eslint ./src/** && prettier --check ./src"
