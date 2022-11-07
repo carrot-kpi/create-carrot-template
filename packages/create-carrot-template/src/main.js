@@ -8,6 +8,7 @@ import ora from 'ora'
 import { execSync } from 'child_process'
 import { fileURLToPath } from 'url'
 import copy from 'cpy'
+import { existsSync } from 'fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const { bold, cyan, green, red } = chalk
@@ -228,13 +229,59 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     )
     spinner.succeed('Dependencies installed')
   } catch (error) {
-    spinner.fail('Aborting installation.')
+    spinner.fail('Dependencies installation failed')
     console.log()
     console.log(
       red(`Unexpected error while installing dependencies. Please report it as a bug:`)
     )
     console.log(error)
     process.exit(0)
+  }
+
+  const contractsInitScriptLocation = join(
+    absoluteProjectPath,
+    './packages/contracts/.cct/init.js'
+  )
+  if (existsSync(contractsInitScriptLocation)) {
+    spinner = ora()
+    try {
+      spinner.start('Initializing contracts package')
+      execSync(`node ${contractsInitScriptLocation}`, {
+        stdio: options.verbose ? 'inherit' : 'ignore',
+      })
+      spinner.succeed('Contracts package initialized')
+    } catch (error) {
+      spinner.fail('Contracts package initialization failed')
+      console.log()
+      console.log(
+        red(`Unexpected error while installing dependencies. Please report it as a bug:`)
+      )
+      console.log(error)
+      process.exit(0)
+    }
+  }
+
+  const frontendInitScriptLocation = join(
+    absoluteProjectPath,
+    './packages/frontend/.cct/init.js'
+  )
+  if (existsSync(frontendInitScriptLocation)) {
+    spinner = ora()
+    try {
+      spinner.start('Initializing frontend package')
+      execSync(`node ${frontendInitScriptLocation}`, {
+        stdio: options.verbose ? 'inherit' : 'ignore',
+      })
+      spinner.succeed('Frontend package initialized')
+    } catch (error) {
+      spinner.fail('Frontend package initialization failed')
+      console.log()
+      console.log(
+        red(`Unexpected error while installing dependencies. Please report it as a bug:`)
+      )
+      console.log(error)
+      process.exit(0)
+    }
   }
 
   spinner = ora()
