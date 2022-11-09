@@ -305,7 +305,9 @@ try {
         CCT_IPFS_RPC_API_URL: JSON.stringify(`http://localhost:${IPFS_RPC_API_PORT}/`),
         CCT_CHAIN_ID: JSON.stringify(forkedNetworkChainId),
         CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId),
+        CCT_TEMPLATE_ADDRESS: JSON.stringify(templateContract.address),
         CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY: JSON.stringify(secretKey),
+        CCT_DEPLOYMENT_ACCOUNT_ADDRESS: JSON.stringify(signer.address),
       }
     ),
     new Writable({
