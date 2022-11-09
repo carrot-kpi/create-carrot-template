@@ -246,9 +246,11 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     spinner = ora()
     try {
       spinner.start('Initializing contracts package')
+      process.chdir(join(absoluteProjectPath, './packages/contracts/'))
       execSync(`node ${contractsInitScriptLocation}`, {
         stdio: options.verbose ? 'inherit' : 'ignore',
       })
+      process.chdir(absoluteProjectPath)
       spinner.succeed('Contracts package initialized')
     } catch (error) {
       spinner.fail('Contracts package initialization failed')
@@ -269,9 +271,11 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     spinner = ora()
     try {
       spinner.start('Initializing frontend package')
+      process.chdir(join(absoluteProjectPath, './packages/frontend/'))
       execSync(`node ${frontendInitScriptLocation}`, {
         stdio: options.verbose ? 'inherit' : 'ignore',
       })
+      process.chdir(absoluteProjectPath)
       spinner.succeed('Frontend package initialized')
     } catch (error) {
       spinner.fail('Frontend package initialization failed')
