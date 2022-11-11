@@ -140,6 +140,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
   const projectPkgPath = join(projectBasePath, './package.json')
   const projectPkg = readJSONSync(projectPkgPath)
   projectPkg.name = projectName
+  projectPkg.templateType = options.kpiToken ? 'kpi-token' : 'oracle'
   renameSync(
     join(absoluteProjectPath, 'gitignore'),
     join(absoluteProjectPath, '.gitignore')
