@@ -35,9 +35,7 @@
   },
   "types": "./lib/carrot-template.d.ts",
   "dependencies": {
-    "@carrot-kpi/contracts": "^0.1.0",
-    "@carrot-kpi/sdk": "^1.4.0",
-    "@ganache/options": "^0.5.3",
+    "@carrot-kpi/sdk": "^1.9.2",
     "chalk": "^4.1.2",
     "ethers": "^5.7.1",
     "ganache": "^7.4.4",
