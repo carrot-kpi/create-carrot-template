@@ -233,7 +233,10 @@ try {
   process.on('SIGINT', cleanup)
   process.on('SIGHUP', cleanup)
 
-  const result = await daemon._ipfs.add(readFileSync(specificationLocation).toString())
+  const result = await daemon._ipfs.add(
+    { path: './base.json', content: readFileSync(specificationLocation).toString() },
+    { wrapWithDirectory: true }
+  )
   specificationCid = result.cid.toString()
   ipfsNodeSpinner.succeed('Started up local IPFS node')
 } catch (error) {
