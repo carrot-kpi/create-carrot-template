@@ -81,6 +81,7 @@ if (!forkUrl) {
   process.exit(0)
 }
 
+const pkgLocation = resolve('./package.json')
 const setupForkScriptLocation = resolve('./packages/contracts/.cct/setup-fork.js')
 const specificationLocation = resolve('./packages/frontend/src/base.json')
 const startPlaygroundScriptLocation = resolve(
@@ -135,7 +136,13 @@ ganacheSpinner.start(
   `Starting up local node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
 )
 const chainAddresses = CHAIN_ADDRESSES[forkedNetworkChainId]
-let ganacheProvider, kpiTokensManager, kpiTokensManagerOwner, signer, secretKey
+let ganacheProvider,
+  kpiTokensManager,
+  kpiTokensManagerOwner,
+  oraclesManager,
+  oraclesManagerOwner,
+  signer,
+  secretKey
 try {
   kpiTokensManager = new Contract(
     chainAddresses.kpiTokensManager,
@@ -143,6 +150,12 @@ try {
     forkNetworkProvider
   )
   kpiTokensManagerOwner = await kpiTokensManager.owner()
+  oraclesManager = new Contract(
+    chainAddresses.oraclesManager,
+    ORACLES_MANAGER_ABI,
+    forkNetworkProvider
+  )
+  oraclesManagerOwner = await oraclesManager.owner()
   const ganacheServer = ganache.server({
     fork: { url: forkUrl, deleteCache: true, disableCache: true },
     chain: {
@@ -151,7 +164,7 @@ try {
     wallet: {
       mnemonic: MNEMONIC,
       hdPath: DERIVATION_PATH,
-      unlockedAccounts: [kpiTokensManagerOwner],
+      unlockedAccounts: [kpiTokensManagerOwner, oraclesManagerOwner],
     },
     logging: {
       quiet: true,
@@ -235,7 +248,6 @@ templateDeploymentSpinner.start(
   'Deploying and setting up custom template on target network'
 )
 let factory,
-  oraclesManager,
   multicall,
   templateContract,
   customContracts,
@@ -244,14 +256,14 @@ let factory,
 try {
   factory = new Contract(chainAddresses.factory, FACTORY_ABI, signer)
   kpiTokensManager = kpiTokensManager.connect(signer)
-  oraclesManager = new Contract(
-    chainAddresses.oraclesManager,
-    ORACLES_MANAGER_ABI,
-    signer
-  )
+  oraclesManager = oraclesManager.connect(signer)
   multicall = new Contract(chainAddresses.multicall, MULTICALL_ABI, signer)
 
-  predictedTemplateId = (await kpiTokensManager.templatesAmount()).add('1').toNumber()
+  const isKpiTokenTemplate =
+    JSON.parse(readFileSync(pkgLocation)).templateType === 'kpi-token'
+  const templatesManager = isKpiTokenTemplate ? kpiTokensManager : oraclesManager
+
+  predictedTemplateId = (await templatesManager.templatesAmount()).add('1').toNumber()
   const { setupFork } = await import(setupForkScriptLocation)
   const setupResult = await setupFork(
     factory,
@@ -259,17 +271,23 @@ try {
     oraclesManager,
     multicall,
     predictedTemplateId,
-    signer
+    signer,
+    ganacheProvider
   )
   templateContract = setupResult.templateContract
   customContracts = setupResult.customContracts
   frontendGlobals = setupResult.frontendGlobals
 
-  await kpiTokensManager
-    .connect(ganacheProvider.getSigner(kpiTokensManagerOwner))
+  const templatesManagerOwner = isKpiTokenTemplate
+    ? ganacheProvider.getSigner(kpiTokensManagerOwner)
+    : ganacheProvider.getSigner(oraclesManagerOwner)
+
+  await templatesManager
+    .connect(templatesManagerOwner)
     .addTemplate(templateContract.address, specificationCid, {
-      from: kpiTokensManagerOwner,
+      from: templatesManagerOwner.address,
     })
+
   templateDeploymentSpinner.succeed(
     'Custom template deployed and set up on target network'
   )
