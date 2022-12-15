@@ -14,7 +14,7 @@ import ora from "ora";
 import chalk from "chalk";
 import ganache from "ganache";
 import { Daemon } from "ipfs-daemon";
-import { clearConsole } from "../utils/index.js";
+import { clearConsole } from "../utils/index.mjs";
 import { join, resolve } from "path";
 import { existsSync, readdirSync, readFileSync, rmSync } from "fs";
 import { homedir } from "os";

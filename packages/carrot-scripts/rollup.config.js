@@ -1,21 +1,17 @@
-import { dirname, join } from "path";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
-import { terser } from "rollup-plugin-terser";
-import { fileURLToPath } from "url";
-import glob from "glob";
-import { createRequire } from "module";
-import shebang from "rollup-plugin-preserve-shebang";
-
-const require = createRequire(import.meta.url);
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const { join } = require("path");
+const { nodeResolve } = require("@rollup/plugin-node-resolve");
+const commonjs = require("@rollup/plugin-commonjs");
+const json = require("@rollup/plugin-json");
+const { terser } = require("rollup-plugin-terser");
+const { sync: globSync } = require("glob");
+const shebang = require("rollup-plugin-preserve-shebang");
 const { dependencies } = require("./package.json");
+
 const external = Object.keys(dependencies);
 
-export default [
+module.exports = [
     {
-        input: glob.sync(join(__dirname, "./src/**/*.js")),
+        input: globSync(join(__dirname, "./src/**/*.mjs")),
         plugins: [json(), shebang(), nodeResolve(), commonjs(), terser()],
         external,
         output: [
