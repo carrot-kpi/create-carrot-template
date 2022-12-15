@@ -31,8 +31,8 @@
         "format": "eslint --fix --ext .tsx,.ts,.js,.json ./"
     },
     "bin": {
-        "carrot-scripts": "./dist",
-        "carrot-scripts-es": "./dist"
+        "carrot-scripts": "./dist/index.js",
+        "carrot-scripts-es": "./dist/index.mjs"
     },
     "dependencies": {
         "@carrot-kpi/sdk": "^1.9.2",
