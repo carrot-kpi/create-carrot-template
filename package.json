@@ -1,36 +1,42 @@
 {
-  "private": true,
-  "name": "create-carrot-template",
-  "keywords": [
-    "ethereum",
-    "web3",
-    "dxdao",
-    "carrot",
-    "kpi",
-    "template"
-  ],
-  "workspaces": [
-    "packages/*"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/carrot-kpi/create-carrot-template.git"
-  },
-  "license": "GPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/carrot-kpi/create-carrot-template/issues"
-  },
-  "scripts": {
-    "lint": "npm run lint --workspaces",
-    "lint:commit-message": "commitlint --config commitlintrc.cjs -e",
-    "prepare": "husky install"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
-    "eslint": "^8.24.0",
-    "eslint-config-prettier": "^8.5.0",
-    "husky": "^8.0.1",
-    "prettier": "^2.7.1"
-  }
+    "private": true,
+    "name": "create-carrot-template",
+    "keywords": [
+        "ethereum",
+        "web3",
+        "dxdao",
+        "carrot",
+        "kpi",
+        "template"
+    ],
+    "workspaces": [
+        "packages/*"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/carrot-kpi/create-carrot-template.git"
+    },
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/carrot-kpi/create-carrot-template/issues"
+    },
+    "scripts": {
+        "build": "turbo run build",
+        "lint": "turbo run lint",
+        "format": "turbo run format",
+        "start": "turbo run start",
+        "test": "turbo run test",
+        "size-limit": "turbo run size-limit",
+        "commitlint": "commitlint -e",
+        "prepare": "husky install"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^17.1.2",
+        "@commitlint/config-conventional": "^17.1.0",
+        "eslint": "^8.24.0",
+        "eslint-config-prettier": "^8.5.0",
+        "husky": "^8.0.1",
+        "prettier": "^2.7.1",
+        "turbo": "^1.6.3"
+    }
 }
