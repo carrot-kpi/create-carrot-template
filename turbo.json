@@ -16,6 +16,5 @@
         "size-limit": {},
         "lint": {},
         "format": {}
-    },
-    "globalEnv": ["ES"]
+    }
 }

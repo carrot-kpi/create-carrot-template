@@ -23,10 +23,8 @@ const remainingArgs =
     scriptIndex > 0 ? args.splice(scriptIndex, 1) : args.slice(1);
 
 execSync(
-    `node ${join(
-        __dirname,
-        "./scripts",
-        `${script}.${process.env.ES === true ? "mjs" : "js"}`
-    )} ${remainingArgs.join(" ")}`,
+    `node ${join(__dirname, "./scripts", `${script}.js`)} ${remainingArgs.join(
+        " "
+    )}`,
     { stdio: "inherit" }
 );
