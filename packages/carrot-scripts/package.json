@@ -2,6 +2,7 @@
     "type": "module",
     "name": "carrot-scripts",
     "version": "0.10.1",
+    "types": "./lib/carrot-template.d.ts",
     "keywords": [
         "ethereum",
         "web3",
@@ -24,7 +25,8 @@
         "url": "https://github.com/carrot-kpi/create-carrot-template/issues"
     },
     "files": [
-        "./src"
+        "./src",
+        "./lib"
     ],
     "scripts": {
         "format": "eslint --fix --ext .tsx,.ts,.js,.json ./"

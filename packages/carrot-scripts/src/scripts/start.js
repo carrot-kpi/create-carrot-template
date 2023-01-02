@@ -95,9 +95,7 @@ const pkgLocation = resolve("./package.json");
 const setupForkScriptLocation = resolve(
     "./packages/contracts/.cct/setup-fork.js"
 );
-const buildFederatedModulesScriptLocation = resolve(
-    "./packages/frontend/.cct/build-federated-modules.js"
-);
+const specificationLocation = resolve("./packages/frontend/src/base.json");
 const startPlaygroundScriptLocation = resolve(
     "./packages/frontend/.cct/start-playground.js"
 );
@@ -217,7 +215,7 @@ const main = async () => {
 
     const ipfsNodeSpinner = ora();
     ipfsNodeSpinner.start("Starting up local IPFS node");
-    let ipfs;
+    let specificationCid;
     try {
         if (existsSync(IPFS_REPO_PATH))
             rmSync(IPFS_REPO_PATH, {
@@ -244,8 +242,6 @@ const main = async () => {
         await daemon.start();
         await daemon._ipfs.start();
 
-        ipfs = daemon._ipfs;
-
         const cleanup = async () => {
             console.log();
             console.log("Received interrupt signal, gracefully shutting down");
@@ -258,51 +254,17 @@ const main = async () => {
         process.on("SIGINT", cleanup);
         process.on("SIGHUP", cleanup);
 
+        const result = await daemon._ipfs.add(
+            {
+                path: "./base.json",
+                content: readFileSync(specificationLocation).toString(),
+            },
+            { wrapWithDirectory: true }
+        );
+        specificationCid = result.cid.toString();
         ipfsNodeSpinner.succeed("Started up local IPFS node");
     } catch (error) {
         ipfsNodeSpinner.fail("Could not start up local IPFS node");
-        console.log();
-        console.log(error);
-        process.exit(1);
-    }
-
-    const federatedModuleBuildSpinner = ora();
-    federatedModuleBuildSpinner.start(
-        "Building federated modules and uploading to local IPFS node"
-    );
-    let specificationCid;
-    try {
-        const { buildFederatedModules } = await import(
-            buildFederatedModulesScriptLocation
-        );
-        const outDir = await buildFederatedModules(false);
-
-        const filesToUpload = readdirSync(outDir).map((fileName) => {
-            return {
-                path: fileName,
-                content: readFileSync(join(outDir, fileName)),
-            };
-        });
-
-        const results = [];
-        for await (const result of ipfs.addAll(filesToUpload, {
-            wrapWithDirectory: true,
-        }))
-            results.push(result);
-
-        specificationCid = results[results.length - 1].cid.toString();
-
-        federatedModuleBuildSpinner.succeed(
-            `Federated modules successfully built and uploaded to local IPFS node:\n\n${results.map(
-                ({ path, cid }) => {
-                    return `  - ${path || "."}: ${cid.toString()}\n`;
-                }
-            )}\n`
-        );
-    } catch (error) {
-        federatedModuleBuildSpinner.fail(
-            "Could not build federated modules and upload them to local IPFS node"
-        );
         console.log();
         console.log(error);
         process.exit(1);
@@ -377,6 +339,7 @@ const main = async () => {
     frontendSpinner.start("Starting up local playground");
     try {
         const { startPlayground } = await import(startPlaygroundScriptLocation);
+        process.chdir("packages/frontend");
         await startPlayground(
             forkedNetworkChainId,
             predictedTemplateId,
