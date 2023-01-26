@@ -353,13 +353,13 @@ const main = async () => {
                     __DEV__: JSON.stringify(true),
                     CCT_RPC_URL: JSON.stringify(ganacheProvider.connection.url),
                     CCT_IPFS_GATEWAY_URL: JSON.stringify(
-                        `http://localhost:${IPFS_GATEWAY_API_PORT}/ipfs`
+                        `http://localhost:${IPFS_GATEWAY_API_PORT}`
                     ),
                     CCT_IPFS_HTTP_API_URL: JSON.stringify(
-                        `http://localhost:${IPFS_HTTP_API_PORT}/`
+                        `http://localhost:${IPFS_HTTP_API_PORT}`
                     ),
                     CCT_IPFS_RPC_API_URL: JSON.stringify(
-                        `http://localhost:${IPFS_RPC_API_PORT}/`
+                        `http://localhost:${IPFS_RPC_API_PORT}`
                     ),
                     CCT_CHAIN_ID: JSON.stringify(forkedNetworkChainId),
                     CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId),
