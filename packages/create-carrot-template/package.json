@@ -46,6 +46,6 @@
         "validate-npm-package-name": "^3.0.0"
     },
     "devDependencies": {
-        "eslint-config-custom": "workspace:*"
+        "eslint-config-custom": "*"
     }
 }

@@ -86,7 +86,7 @@ if (!forkUrl) {
     );
     console.log("  or if invoking from a Carrot Create Template project:");
     console.log(
-        `  ${chalk.cyan("pnpm start")} ${chalk.green("<rpc_endpoint>")}`
+        `  ${chalk.cyan("yarn start")} ${chalk.green("<rpc_endpoint>")}`
     );
     process.exit(0);
 }
@@ -139,7 +139,7 @@ const main = async () => {
     const compileSpinner = ora();
     compileSpinner.start(`Compiling contracts`);
     try {
-        execSync("pnpm build:contracts");
+        execSync("yarn build:contracts");
         compileSpinner.succeed("Contracts compiled");
     } catch (error) {
         compileSpinner.fail("Could not compile contracts");

@@ -43,6 +43,6 @@
         "ora": "^6.1.2"
     },
     "devDependencies": {
-        "eslint-config-custom": "workspace:*"
+        "eslint-config-custom": "*"
     }
 }
