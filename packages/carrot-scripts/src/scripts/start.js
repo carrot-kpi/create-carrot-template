@@ -16,9 +16,10 @@ import ganache from "ganache";
 import { Daemon } from "ipfs-daemon";
 import { clearConsole } from "../utils/index.js";
 import { join, resolve } from "path";
-import { existsSync, readdirSync, readFileSync, rmSync } from "fs";
+import { existsSync, readFileSync, rmSync } from "fs";
 import { homedir } from "os";
 import { Writable } from "stream";
+import { long as longCommitHash } from "git-rev-sync";
 
 const GANACHE_PORT = 9001;
 const IPFS_GATEWAY_API_PORT = 9090;
@@ -254,10 +255,17 @@ const main = async () => {
         process.on("SIGINT", cleanup);
         process.on("SIGHUP", cleanup);
 
+        const specificationContent = JSON.parse(
+            readFileSync(specificationLocation).toString()
+        );
+        const commitHash = longCommitHash(process.cwd());
         const result = await daemon._ipfs.add(
             {
                 path: "./base.json",
-                content: readFileSync(specificationLocation).toString(),
+                content: JSON.stringify({
+                    ...specificationContent,
+                    commitHash,
+                }),
             },
             { wrapWithDirectory: true }
         );

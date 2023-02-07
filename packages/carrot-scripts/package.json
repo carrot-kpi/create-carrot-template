@@ -39,6 +39,7 @@
         "chalk": "^4.1.2",
         "ethers": "^5.7.1",
         "ganache": "^7.4.4",
+        "git-rev-sync": "^3.0.2",
         "ipfs-daemon": "^0.15.0",
         "ora": "^6.1.2"
     },
