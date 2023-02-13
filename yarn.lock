@@ -61,10 +61,10 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@carrot-kpi/sdk@^1.9.2":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.15.0.tgz#06351110f85bbfe857ff5f8b4817f6d4aacd41e4"
-  integrity sha512-SKGhN7m4wHHNXACe8sBRs+3l/gnnY5zKVWMGEE6eH1ZeC4BrcVHzM5Txmjtdz0UcouoPXtFB8zxH9FJhHoyeiQ==
+"@carrot-kpi/sdk@^1.16.0":
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.16.0.tgz#7678fd2dbd4d0551eb97c31b61e1c8a2ef1c894e"
+  integrity sha512-f9SEIIn2LID1JDGWSfjmzwvMK/hqBv366i797SG+bfTYX0KUA7kPuGu4GfPC7cMm58GeD9XPmYYAyJkdZttf7A==
   dependencies:
     "@ethersproject/address" "^5.7.0"
     "@ethersproject/bignumber" "^5.7.0"
