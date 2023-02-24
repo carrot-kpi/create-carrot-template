@@ -35,7 +35,7 @@
         "carrot-scripts": "./src/index.js"
     },
     "dependencies": {
-        "@carrot-kpi/sdk": "^1.16.0",
+        "@carrot-kpi/sdk": "^1.16.5",
         "chalk": "^4.1.2",
         "ethers": "^5.7.1",
         "ganache": "^7.4.4",
