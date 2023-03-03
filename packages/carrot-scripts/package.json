@@ -40,7 +40,8 @@
         "ethers": "^5.7.1",
         "ganache": "^7.4.4",
         "git-rev-sync": "^3.0.2",
-        "ipfs-daemon": "^0.15.0",
+        "ipfs": "^0.66.0",
+        "ipfs-http-gateway": "^0.13.0",
         "ora": "^6.1.2"
     },
     "devDependencies": {

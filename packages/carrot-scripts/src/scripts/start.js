@@ -13,7 +13,8 @@ import {
 import ora from "ora";
 import chalk from "chalk";
 import ganache from "ganache";
-import { Daemon } from "ipfs-daemon";
+import { create as createIPFSClient } from "ipfs";
+import { HttpGateway } from "ipfs-http-gateway";
 import { clearConsole } from "../utils/index.js";
 import { join, resolve } from "path";
 import { existsSync, readFileSync, rmSync } from "fs";
@@ -223,11 +224,17 @@ const main = async () => {
                 force: true,
                 recursive: true,
             });
-        const daemon = new Daemon({
+        const ipfs = await createIPFSClient({
             silent: true,
             repo: IPFS_REPO_PATH,
-            start: false,
+            init: {
+                profiles: ["server"],
+            },
             config: {
+                Addresses: {
+                    API: `/ip4/127.0.0.1/tcp/${IPFS_HTTP_API_PORT}`,
+                    Gateway: `/ip4/127.0.0.1/tcp/${IPFS_GATEWAY_API_PORT}`,
+                },
                 API: {
                     HTTPHeaders: {
                         "Access-Control-Allow-Origin": [
@@ -240,26 +247,14 @@ const main = async () => {
                 },
             },
         });
-        await daemon.start();
-        await daemon._ipfs.start();
-
-        const cleanup = async () => {
-            console.log();
-            console.log("Received interrupt signal, gracefully shutting down");
-            await daemon.stop();
-            await daemon._ipfs.stop();
-            process.exit(0);
-        };
-
-        process.on("SIGTERM", cleanup);
-        process.on("SIGINT", cleanup);
-        process.on("SIGHUP", cleanup);
+        const gateway = new HttpGateway(ipfs);
+        await gateway.start();
 
         const specificationContent = JSON.parse(
             readFileSync(specificationLocation).toString()
         );
         const commitHash = longCommitHash(process.cwd());
-        const result = await daemon._ipfs.add(
+        const result = await ipfs.add(
             {
                 path: "./base.json",
                 content: JSON.stringify({
