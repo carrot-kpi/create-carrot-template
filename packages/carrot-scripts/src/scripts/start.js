@@ -15,6 +15,7 @@ import chalk from "chalk";
 import ganache from "ganache";
 import { create as createIPFSClient } from "ipfs";
 import { HttpGateway } from "ipfs-http-gateway";
+import { HttpApi } from "ipfs-http-server";
 import { clearConsole } from "../utils/index.js";
 import { join, resolve } from "path";
 import { existsSync, readFileSync, rmSync } from "fs";
@@ -256,8 +257,9 @@ const main = async () => {
                 },
             },
         });
-        const gateway = new HttpGateway(ipfs);
-        await gateway.start();
+
+        await new HttpGateway(ipfs).start();
+        await new HttpApi(ipfs).start();
 
         const specificationContent = JSON.parse(
             readFileSync(specificationLocation).toString()
