@@ -21,6 +21,7 @@ import { existsSync, readFileSync, rmSync } from "fs";
 import { homedir } from "os";
 import { Writable } from "stream";
 import { long as longCommitHash } from "git-rev-sync";
+import { formatEther, formatUnits } from "ethers/lib/utils.js";
 
 const GANACHE_PORT = 9001;
 const IPFS_GATEWAY_API_PORT = 9090;
@@ -33,6 +34,7 @@ const IPFS_REPO_PATH = join(homedir(), ".cct/ipfs");
 const printInformation = (
     deploymentAccountAddress,
     deploymentAccountSecretKey,
+    deploymentAccountInitialBalance,
     factoryAddress,
     kpiTokensManagerAddress,
     oraclesManagerAddress,
@@ -50,6 +52,7 @@ const printInformation = (
     console.log();
     console.log("  Address:", deploymentAccountAddress);
     console.log("  Private key:", deploymentAccountSecretKey);
+    console.log("  Initial balance:", deploymentAccountInitialBalance);
     console.log();
     console.log(chalk.cyan("RPC endpoints:"));
     console.log();
@@ -161,7 +164,8 @@ const main = async () => {
         oraclesManager,
         oraclesManagerOwner,
         signer,
-        secretKey;
+        secretKey,
+        deploymentAccountInitialBalance;
     try {
         kpiTokensManager = new Contract(
             chainAddresses.kpiTokensManager,
@@ -203,6 +207,11 @@ const main = async () => {
             `http://localhost:${GANACHE_PORT}`
         );
         signer = new Wallet(secretKey, ganacheProvider);
+
+        deploymentAccountInitialBalance = formatEther(
+            await ganacheProvider.getBalance(signer.address)
+        );
+
         ganacheSpinner.succeed(
             `Started up local node with fork URL ${forkUrl}`
         );
@@ -382,6 +391,7 @@ const main = async () => {
                     printInformation(
                         signer.address,
                         secretKey,
+                        deploymentAccountInitialBalance,
                         factory.address,
                         kpiTokensManager.address,
                         oraclesManager.address,
