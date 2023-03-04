@@ -190,9 +190,6 @@ const main = async () => {
                 hdPath: DERIVATION_PATH,
                 unlockedAccounts: [kpiTokensManagerOwner, oraclesManagerOwner],
             },
-            miner: {
-                blockTime: 12,
-            },
             logging: {
                 quiet: true,
             },
