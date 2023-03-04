@@ -12,7 +12,7 @@ import {
 } from "@carrot-kpi/sdk";
 import ora from "ora";
 import chalk from "chalk";
-import ganache from "ganache";
+import ganache from "@carrot-kpi/ganache";
 import { create as createIPFSClient } from "ipfs";
 import { HttpGateway } from "ipfs-http-gateway";
 import { HttpApi } from "ipfs-http-server";

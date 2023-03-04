@@ -61,6 +61,26 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
+"@carrot-kpi/ganache@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/ganache/-/ganache-0.1.0.tgz#7daeb5b2e59fac18ce3ec8bab875cc9a383d701f"
+  integrity sha512-/1MxHwXd+jAhWppRwxLd/kDNI3eZXgg9OGjvWofCyKSvO+MDyu7EyV3L+dxwUtGHSq7ZhZnS7QZJkXsh+iXx8A==
+  dependencies:
+    "@trufflesuite/bigint-buffer" "1.1.10"
+    "@types/bn.js" "^5.1.0"
+    "@types/lru-cache" "5.1.1"
+    "@types/seedrandom" "3.0.1"
+    abstract-level "1.0.3"
+    abstract-leveldown "7.2.0"
+    async-eventemitter "0.2.4"
+    emittery "0.10.0"
+    keccak "3.0.2"
+    leveldown "6.1.0"
+    secp256k1 "4.0.3"
+  optionalDependencies:
+    bufferutil "4.0.5"
+    utf-8-validate "5.0.7"
+
 "@carrot-kpi/sdk@^1.16.5":
   version "1.16.5"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.16.5.tgz#27ef6649042e1d7c01f81f6788b18e77582f3c7d"
@@ -3885,26 +3905,6 @@ function-timeout@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/function-timeout/-/function-timeout-0.1.1.tgz#6bf71d3d24c894d43b2bec312cabb8c5add2e9da"
   integrity sha512-0NVVC0TaP7dSTvn1yMiy6d6Q8gifzbvQafO46RtLG/kHJUBNd+pVRGOBoK44wNBvtSPUJRfdVvkFdD3p0xvyZg==
-
-ganache@^7.4.4:
-  version "7.7.4"
-  resolved "https://registry.yarnpkg.com/ganache/-/ganache-7.7.4.tgz#aea533f769a9a5b452ef101c0a6b9970651400c4"
-  integrity sha512-ies0uaFAnHrTzCJaCg/FYFVD4B9DFouKkWpEmQDCQRYwT4n5SqbZDR7aIDy/iATtBzkJJsQ6RptE9Ovr32Dmpw==
-  dependencies:
-    "@trufflesuite/bigint-buffer" "1.1.10"
-    "@types/bn.js" "^5.1.0"
-    "@types/lru-cache" "5.1.1"
-    "@types/seedrandom" "3.0.1"
-    abstract-level "1.0.3"
-    abstract-leveldown "7.2.0"
-    async-eventemitter "0.2.4"
-    emittery "0.10.0"
-    keccak "3.0.2"
-    leveldown "6.1.0"
-    secp256k1 "4.0.3"
-  optionalDependencies:
-    bufferutil "4.0.5"
-    utf-8-validate "5.0.7"
 
 gar@^1.0.4:
   version "1.0.4"

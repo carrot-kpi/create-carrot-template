@@ -35,10 +35,10 @@
         "carrot-scripts": "./src/index.js"
     },
     "dependencies": {
+        "@carrot-kpi/ganache": "^0.1.0",
         "@carrot-kpi/sdk": "^1.16.5",
         "chalk": "^4.1.2",
         "ethers": "^5.7.1",
-        "ganache": "^7.4.4",
         "git-rev-sync": "^3.0.2",
         "ipfs": "^0.66.0",
         "ipfs-http-gateway": "^0.13.0",
