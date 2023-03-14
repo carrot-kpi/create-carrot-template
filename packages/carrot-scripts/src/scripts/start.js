@@ -310,9 +310,9 @@ const main = async () => {
             ? kpiTokensManager
             : oraclesManager;
 
-        predictedTemplateId = (await templatesManager.templatesAmount())
-            .add("1")
-            .toNumber();
+        predictedTemplateId = (
+            await templatesManager.nextTemplateId()
+        ).toNumber();
         const { setupFork } = await import(setupForkScriptLocation);
         const setupResult = await setupFork(
             factory,
