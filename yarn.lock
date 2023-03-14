@@ -81,10 +81,10 @@
     bufferutil "4.0.5"
     utf-8-validate "5.0.7"
 
-"@carrot-kpi/sdk@^1.18.1":
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.18.1.tgz#aef220771a28d9bd617d56e8f0ddcf25cfb82c22"
-  integrity sha512-tIJbLSfFUI4uAR56mEYUMJJjt13oejMZF3IgOS/XHc07de6CausO1SoYTplFB3G9wKCFziAZm3OmSYqnTKQNrw==
+"@carrot-kpi/sdk@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.18.3.tgz#2318deca2f14423d119c972532d8cc226e2adc62"
+  integrity sha512-B8NqrdE7WfNX2yhj4S8hnolUWgmtpw9/XUBAP1pRUBnAoG9YpuOmDkG2Zv8XQ6It+jKBAkCUmbHPMyocfMW8+Q==
   dependencies:
     "@ethersproject/address" "^5.7.0"
     "@ethersproject/bignumber" "^5.7.0"
