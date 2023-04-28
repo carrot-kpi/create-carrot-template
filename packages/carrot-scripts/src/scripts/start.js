@@ -247,12 +247,7 @@ const main = async () => {
                 },
                 API: {
                     HTTPHeaders: {
-                        "Access-Control-Allow-Origin": [
-                            "http://127.0.0.1:9000",
-                            "http://127.0.0.1:9000/",
-                            "http://localhost:9000",
-                            "http://localhost:9000/",
-                        ],
+                        "Access-Control-Allow-Origin": ["*"],
                     },
                 },
             },
