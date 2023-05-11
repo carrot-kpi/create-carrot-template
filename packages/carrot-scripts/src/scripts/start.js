@@ -237,9 +237,6 @@ const main = async () => {
         const ipfs = await createIPFSClient({
             silent: true,
             repo: IPFS_REPO_PATH,
-            init: {
-                profiles: ["server"],
-            },
             config: {
                 Addresses: {
                     API: `/ip4/127.0.0.1/tcp/${IPFS_HTTP_API_PORT}`,
