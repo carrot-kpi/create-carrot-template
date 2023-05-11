@@ -36,14 +36,14 @@
         "format": "eslint --fix --ext .tsx,.ts,.js,.json ./"
     },
     "dependencies": {
-        "chalk": "^4.1.2",
-        "commander": "^4.1.1",
-        "cpy": "^9.0.1",
+        "chalk": "^5.2.0",
+        "commander": "^10.0.1",
+        "cpy": "^10.1.0",
         "envinfo": "^7.8.1",
-        "fs-extra": "^10.1.0",
-        "ora": "^6.1.2",
-        "semver": "^7.3.5",
-        "validate-npm-package-name": "^3.0.0"
+        "fs-extra": "^11.1.1",
+        "ora": "^6.3.0",
+        "semver": "^7.5.0",
+        "validate-npm-package-name": "^5.0.0"
     },
     "devDependencies": {
         "eslint-config-custom": "*"
