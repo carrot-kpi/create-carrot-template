@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "carrot-scripts",
-    "version": "0.15.5",
+    "version": "0.15.6",
     "types": "./lib/carrot-template.d.ts",
     "keywords": [
         "ethereum",
@@ -36,14 +36,14 @@
     },
     "dependencies": {
         "@carrot-kpi/ganache": "^0.1.0",
-        "@carrot-kpi/sdk": "^1.18.3",
-        "chalk": "^4.1.2",
+        "@carrot-kpi/sdk": "^1.24.1",
+        "chalk": "^5.2.0",
         "ethers": "^5.7.1",
         "git-rev-sync": "^3.0.2",
         "ipfs": "^0.66.0",
         "ipfs-http-gateway": "^0.13.0",
         "ipfs-http-server": "^0.15.0",
-        "ora": "^6.1.2"
+        "ora": "^6.3.0"
     },
     "devDependencies": {
         "eslint-config-custom": "*"
