@@ -1,3 +1,5 @@
+import type { Hex } from "viem";
+
 declare global {
     const __DEV__: boolean;
     const CCT_RPC_URL: string;
@@ -7,8 +9,6 @@ declare global {
     const CCT_CHAIN_ID: number;
     const CCT_TEMPLATE_ID: number;
     const CCT_TEMPLATE_ADDRESS: string;
-    const CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY: string;
+    const CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY: Hex;
     const CCT_DEPLOYMENT_ACCOUNT_ADDRESS: string;
 }
-
-export {};
