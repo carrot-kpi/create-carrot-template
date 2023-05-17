@@ -10,6 +10,7 @@ import {
     getContract,
     parseUnits,
     toHex,
+    bytesToHex,
 } from "viem";
 import {
     ChainId,
@@ -210,7 +211,7 @@ const main = async () => {
         const account = mnemonicToAccount(MNEMONIC, {
             path: DERIVATION_PATH,
         });
-        secretKey = account.getHdKey().privateKey;
+        secretKey = bytesToHex(account.getHdKey().privateKey);
         walletClient = createWalletClient({
             account,
             transport: nodeTransport,
