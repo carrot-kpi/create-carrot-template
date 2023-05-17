@@ -430,10 +430,10 @@ const main = async () => {
                         walletClient.account.address,
                         secretKey,
                         deploymentAccountInitialBalance,
-                        factory.address,
-                        kpiTokensManager.address,
-                        oraclesManager.address,
-                        multicall.address,
+                        chainAddresses.factory,
+                        chainAddresses.kpiTokensManager,
+                        chainAddresses.oraclesManager,
+                        chainAddresses.multicall,
                         templateAddress,
                         customContracts
                     );
