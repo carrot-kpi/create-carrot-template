@@ -210,6 +210,7 @@ const main = async () => {
         const account = mnemonicToAccount(MNEMONIC, {
             path: DERIVATION_PATH,
         });
+        secretKey = account.getHdKey().privateKey;
         walletClient = createWalletClient({
             account,
             transport: nodeTransport,
