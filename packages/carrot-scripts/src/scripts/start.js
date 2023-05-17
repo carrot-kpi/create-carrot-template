@@ -1,7 +1,16 @@
 #!/usr/bin/env node
 
 import { execSync } from "child_process";
-import { Wallet, providers, Contract } from "ethers";
+import { mnemonicToAccount } from "viem/accounts";
+import {
+    createWalletClient,
+    createPublicClient,
+    http,
+    formatEther,
+    getContract,
+    parseUnits,
+    toHex,
+} from "viem";
 import {
     ChainId,
     CHAIN_ADDRESSES,
@@ -12,7 +21,7 @@ import {
 } from "@carrot-kpi/sdk";
 import ora from "ora";
 import chalk from "chalk";
-import ganache from "@carrot-kpi/ganache";
+import { createAnvil } from "@viem/anvil";
 import { create as createIPFSClient } from "ipfs";
 import { HttpGateway } from "ipfs-http-gateway";
 import { HttpApi } from "ipfs-http-server";
@@ -22,9 +31,11 @@ import { existsSync, readFileSync, rmSync } from "fs";
 import { homedir } from "os";
 import { Writable } from "stream";
 import { long as longCommitHash } from "git-rev-sync";
-import { formatEther, formatUnits } from "ethers/lib/utils.js";
+import * as chainsObject from "viem/chains";
 
-const GANACHE_PORT = 9001;
+const chains = Object.values(chainsObject);
+
+const ANVIL_PORT = 9001;
 const IPFS_GATEWAY_API_PORT = 9090;
 const IPFS_HTTP_API_PORT = 5002;
 const IPFS_RPC_API_PORT = 5003;
@@ -57,14 +68,14 @@ const printInformation = (
     console.log();
     console.log(chalk.cyan("RPC endpoints:"));
     console.log();
-    console.log(`  http://localhost:${GANACHE_PORT}`);
-    console.log(`  ws://localhost:${GANACHE_PORT}`);
+    console.log(`  http://127.0.0.1:${ANVIL_PORT}`);
+    console.log(`  ws://127.0.0.1:${ANVIL_PORT}`);
     console.log();
     console.log(chalk.cyan("IPFS endpoints:"));
     console.log();
-    console.log(`  - Gateway: http://localhost:${IPFS_GATEWAY_API_PORT}`);
-    console.log(`  - HTTP API: http://localhost:${IPFS_HTTP_API_PORT}`);
-    console.log(`  - RPC API: http://localhost:${IPFS_RPC_API_PORT}`);
+    console.log(`  - Gateway: http://127.0.0.1:${IPFS_GATEWAY_API_PORT}`);
+    console.log(`  - HTTP API: http://127.0.0.1:${IPFS_HTTP_API_PORT}`);
+    console.log(`  - RPC API: http://127.0.0.1:${IPFS_RPC_API_PORT}`);
     console.log();
     console.log(chalk.cyan("Contract addresses:"));
     console.log();
@@ -111,12 +122,16 @@ const main = async () => {
 
     const forkCheckSpinner = ora();
     forkCheckSpinner.start(`Checking forked network chain id`);
-    let forkedNetworkChainId, forkNetworkProvider;
+    let forkedNetworkChainId, forkedNetworkChain, forkNetworkClient;
     try {
-        forkNetworkProvider = new providers.JsonRpcProvider(forkUrl);
-        const network = await forkNetworkProvider.getNetwork();
-        forkedNetworkChainId = network.chainId;
-        if (!(forkedNetworkChainId in ChainId)) {
+        forkNetworkClient = createPublicClient({
+            transport: http(forkUrl),
+        });
+        forkedNetworkChainId = await forkNetworkClient.getChainId();
+        forkedNetworkChain = chains.find(
+            (chain) => chain.id === forkedNetworkChainId
+        );
+        if (!(forkedNetworkChainId in ChainId) || !forkedNetworkChain) {
             forkCheckSpinner.fail(
                 `Incompatible forked chain id ${forkedNetworkChainId}`
             );
@@ -154,70 +169,95 @@ const main = async () => {
         process.exit(1);
     }
 
-    const ganacheSpinner = ora();
-    ganacheSpinner.start(
+    const nodeSpinner = ora();
+    nodeSpinner.start(
         `Starting up local node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
     );
     const chainAddresses = CHAIN_ADDRESSES[forkedNetworkChainId];
-    let ganacheProvider,
+    let nodeClient,
         kpiTokensManager,
         kpiTokensManagerOwner,
         oraclesManager,
         oraclesManagerOwner,
-        signer,
+        walletClient,
         secretKey,
         deploymentAccountInitialBalance;
     try {
-        kpiTokensManager = new Contract(
-            chainAddresses.kpiTokensManager,
-            KPI_TOKENS_MANAGER_ABI,
-            forkNetworkProvider
-        );
-        kpiTokensManagerOwner = await kpiTokensManager.owner();
-        oraclesManager = new Contract(
-            chainAddresses.oraclesManager,
-            ORACLES_MANAGER_ABI,
-            forkNetworkProvider
-        );
-        oraclesManagerOwner = await oraclesManager.owner();
-        const ganacheServer = ganache.server({
-            fork: { url: forkUrl, deleteCache: true, disableCache: true },
-            chain: {
-                chainId: forkedNetworkChainId,
-            },
-            wallet: {
-                mnemonic: MNEMONIC,
-                hdPath: DERIVATION_PATH,
-                unlockedAccounts: [kpiTokensManagerOwner, oraclesManagerOwner],
-            },
-            logging: {
-                quiet: true,
-            },
+        const anvil = createAnvil({
+            silent: false,
+            forkUrl,
+            noStorageCaching: true,
+            forkChainId: forkedNetworkChainId,
+            chainId: forkedNetworkChainId,
+            forkBlockNumber: await forkNetworkClient.getBlockNumber(),
+            mnemonic: MNEMONIC,
+            derivationPath: DERIVATION_PATH,
+            accounts: 1,
+            port: ANVIL_PORT,
+            host: "127.0.0.1",
         });
-        await new Promise((resolve, reject) => {
-            ganacheServer.once("open").then(() => {
-                resolve();
-            });
-            ganacheServer.listen(GANACHE_PORT).catch(reject);
+        await anvil.start();
+
+        const nodeTransport = http(`http://127.0.0.1:${ANVIL_PORT}`);
+        nodeClient = createPublicClient({
+            transport: nodeTransport,
+        });
+        await nodeClient.request({
+            method: "anvil_autoImpersonateAccount",
+            params: [true],
         });
 
-        const accounts = await ganacheServer.provider.getInitialAccounts();
-        const account = Object.values(accounts)[0];
-        secretKey = account.secretKey;
-        ganacheProvider = new providers.JsonRpcProvider(
-            `http://localhost:${GANACHE_PORT}`
-        );
-        signer = new Wallet(secretKey, ganacheProvider);
+        const account = mnemonicToAccount(MNEMONIC, {
+            path: DERIVATION_PATH,
+        });
+        walletClient = createWalletClient({
+            account,
+            transport: nodeTransport,
+            chain: forkedNetworkChain,
+        });
+
+        // for some reason, even though we use the same mnemonic and derivation path as anvil,
+        // the resulting account is different. So, the account derivation from the mnemonic
+        // and derivation path is kept to keep things consistent, but it's required to deal
+        // some eth directly to the different account through an anvil sepcific method.
+        await nodeClient.request({
+            method: "anvil_setBalance",
+            params: [
+                account.address,
+                toHex(
+                    parseUnits(
+                        "1000",
+                        forkedNetworkChain.nativeCurrency.decimals
+                    )
+                ),
+            ],
+        });
 
         deploymentAccountInitialBalance = formatEther(
-            await ganacheProvider.getBalance(signer.address)
+            await nodeClient.getBalance({
+                address: walletClient.account.address,
+            })
         );
 
-        ganacheSpinner.succeed(
-            `Started up local node with fork URL ${forkUrl}`
-        );
+        kpiTokensManager = getContract({
+            address: chainAddresses.kpiTokensManager,
+            abi: KPI_TOKENS_MANAGER_ABI,
+            walletClient,
+            publicClient: nodeClient,
+        });
+        kpiTokensManagerOwner = await kpiTokensManager.read.owner();
+
+        oraclesManager = getContract({
+            address: chainAddresses.oraclesManager,
+            abi: ORACLES_MANAGER_ABI,
+            walletClient,
+            publicClient: nodeClient,
+        });
+        oraclesManagerOwner = await oraclesManager.read.owner();
+
+        nodeSpinner.succeed(`Started up local node with fork URL ${forkUrl}`);
     } catch (error) {
-        ganacheSpinner.fail(
+        nodeSpinner.fail(
             `Could not start up node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
         );
         console.log();
@@ -282,19 +322,21 @@ const main = async () => {
     );
     let factory,
         multicall,
-        templateContract,
+        templateAddress,
         customContracts,
         frontendGlobals,
         predictedTemplateId;
     try {
-        factory = new Contract(chainAddresses.factory, FACTORY_ABI, signer);
-        kpiTokensManager = kpiTokensManager.connect(signer);
-        oraclesManager = oraclesManager.connect(signer);
-        multicall = new Contract(
-            chainAddresses.multicall,
-            MULTICALL_ABI,
-            signer
-        );
+        factory = getContract({
+            address: chainAddresses.factory,
+            abi: FACTORY_ABI,
+            walletClient,
+        });
+        multicall = getContract({
+            address: chainAddresses.multicall,
+            abi: MULTICALL_ABI,
+            publicClient: nodeClient,
+        });
 
         const isKpiTokenTemplate =
             JSON.parse(readFileSync(pkgLocation)).templateType === "kpi-token";
@@ -302,32 +344,34 @@ const main = async () => {
             ? kpiTokensManager
             : oraclesManager;
 
-        predictedTemplateId = (
-            await templatesManager.nextTemplateId()
-        ).toNumber();
+        predictedTemplateId = Number(
+            await templatesManager.read.nextTemplateId()
+        );
         const { setupFork } = await import(setupForkScriptLocation);
-        const setupResult = await setupFork(
+        const setupResult = await setupFork({
+            forkedNetworkChain,
             factory,
             kpiTokensManager,
             oraclesManager,
-            multicall,
             predictedTemplateId,
-            signer,
-            ganacheProvider
-        );
-        templateContract = setupResult.templateContract;
+            nodeClient,
+            walletClient,
+        });
+        templateAddress = setupResult.templateAddress;
         customContracts = setupResult.customContracts;
         frontendGlobals = setupResult.frontendGlobals;
 
-        const templatesManagerOwner = isKpiTokenTemplate
-            ? ganacheProvider.getSigner(kpiTokensManagerOwner)
-            : ganacheProvider.getSigner(oraclesManagerOwner);
-
-        await templatesManager
-            .connect(templatesManagerOwner)
-            .addTemplate(templateContract.address, specificationCid, {
-                from: templatesManagerOwner.address,
-            });
+        await walletClient.writeContract({
+            address: isKpiTokenTemplate
+                ? chainAddresses.kpiTokensManager
+                : chainAddresses.oraclesManager,
+            abi: KPI_TOKENS_MANAGER_ABI,
+            functionName: "addTemplate",
+            args: [templateAddress, specificationCid],
+            account: isKpiTokenTemplate
+                ? kpiTokensManagerOwner
+                : oraclesManagerOwner,
+        });
 
         templateDeploymentSpinner.succeed(
             "Custom template deployed and set up on target network"
@@ -357,25 +401,23 @@ const main = async () => {
                 },
                 {
                     __DEV__: JSON.stringify(true),
-                    CCT_RPC_URL: JSON.stringify(ganacheProvider.connection.url),
+                    CCT_RPC_URL: JSON.stringify(nodeClient.transport.url),
                     CCT_IPFS_GATEWAY_URL: JSON.stringify(
-                        `http://localhost:${IPFS_GATEWAY_API_PORT}`
+                        `http://127.0.0.1:${IPFS_GATEWAY_API_PORT}`
                     ),
                     CCT_IPFS_HTTP_API_URL: JSON.stringify(
-                        `http://localhost:${IPFS_HTTP_API_PORT}`
+                        `http://127.0.0.1:${IPFS_HTTP_API_PORT}`
                     ),
                     CCT_IPFS_RPC_API_URL: JSON.stringify(
-                        `http://localhost:${IPFS_RPC_API_PORT}`
+                        `http://127.0.0.1:${IPFS_RPC_API_PORT}`
                     ),
                     CCT_CHAIN_ID: JSON.stringify(forkedNetworkChainId),
                     CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId),
-                    CCT_TEMPLATE_ADDRESS: JSON.stringify(
-                        templateContract.address
-                    ),
+                    CCT_TEMPLATE_ADDRESS: JSON.stringify(templateAddress),
                     CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY:
                         JSON.stringify(secretKey),
                     CCT_DEPLOYMENT_ACCOUNT_ADDRESS: JSON.stringify(
-                        signer.address
+                        walletClient.account.address
                     ),
                 }
             ),
@@ -383,14 +425,14 @@ const main = async () => {
                 write(chunk, _, callback) {
                     clearConsole();
                     printInformation(
-                        signer.address,
+                        walletClient.account.address,
                         secretKey,
                         deploymentAccountInitialBalance,
                         factory.address,
                         kpiTokensManager.address,
                         oraclesManager.address,
                         multicall.address,
-                        templateContract.address,
+                        templateAddress,
                         customContracts
                     );
                     console.log();
