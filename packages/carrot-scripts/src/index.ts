@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
-import { execSync } from "child_process";
-import { dirname, join } from "path";
+import { execaNode } from "execa";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const AVAILABLE_SCRIPTS = ["start"];
 
 const args = process.argv.slice(2);
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const scriptIndex = args.findIndex((arg) => AVAILABLE_SCRIPTS.includes(arg));
 if (scriptIndex === -1) {
@@ -22,9 +21,8 @@ const script = args[scriptIndex];
 const remainingArgs =
     scriptIndex > 0 ? args.splice(scriptIndex, 1) : args.slice(1);
 
-execSync(
-    `node ${join(__dirname, "./scripts", `${script}.js`)} ${remainingArgs.join(
-        " "
-    )}`,
+execaNode(
+    join(dirname(fileURLToPath(import.meta.url)), "./scripts", `${script}.js`),
+    remainingArgs,
     { stdio: "inherit" }
 );

@@ -1,0 +1,10 @@
+{
+    "extends": "tsconfig/carrot-scripts.json",
+    "include": ["./src/**/*"],
+    "compilerOptions": {
+        "declaration": false,
+        "declarationMap": false,
+        "outDir": "./dist",
+        "rootDir": "./src"
+    }
+}

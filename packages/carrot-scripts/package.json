@@ -25,27 +25,37 @@
         "url": "https://github.com/carrot-kpi/create-carrot-template/issues"
     },
     "files": [
+        "./dist",
         "./src",
         "./lib"
     ],
     "scripts": {
-        "format": "eslint --fix --ext .tsx,.ts,.js,.json ./"
+        "format": "eslint --fix --ext .tsx,.ts,.js,.json ./",
+        "clean": "rimraf ./dist",
+        "compile": "yarn clean && tsc",
+        "prepublishOnly": "yarn compile"
     },
     "bin": {
-        "carrot-scripts": "./src/index.js"
+        "carrot-scripts": "./dist/index.js"
     },
     "dependencies": {
-        "@carrot-kpi/sdk": "^1.24.1",
+        "@carrot-kpi/sdk": "^1.26.0",
         "@viem/anvil": "^0.0.5",
         "chalk": "^5.2.0",
-        "git-rev-sync": "^3.0.2",
-        "ipfs": "^0.66.0",
-        "ipfs-http-gateway": "^0.13.0",
-        "ipfs-http-server": "^0.15.0",
-        "ora": "^6.3.0",
-        "viem": "^0.3.24"
+        "execa": "^7.1.1",
+        "ipfs-http-client": "^60.0.0",
+        "ora": "^6.3.1",
+        "tsconfig": "*",
+        "viem": "^0.3.30"
     },
     "devDependencies": {
-        "eslint-config-custom": "*"
+        "@rollup/plugin-commonjs": "^25.0.0",
+        "@rollup/plugin-node-resolve": "^15.0.2",
+        "eslint-config-custom": "*",
+        "rimraf": "^5.0.1",
+        "rollup-plugin-peer-deps-external": "^2.2.4",
+        "rollup-plugin-typescript2": "^0.34.1",
+        "turbo": "^1.9.8",
+        "typescript": "^5.0.4"
     }
 }
