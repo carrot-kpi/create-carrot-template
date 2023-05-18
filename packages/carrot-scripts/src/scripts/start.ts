@@ -1,38 +1,46 @@
 #!/usr/bin/env node
 
-import { execSync } from "child_process";
+// TODO: split subcommands across various files
+
 import { mnemonicToAccount } from "viem/accounts";
 import {
     createWalletClient,
     createPublicClient,
     http,
-    formatEther,
     getContract,
     parseUnits,
-    toHex,
     bytesToHex,
+    createTestClient,
+    formatUnits,
 } from "viem";
+import type { Address, Hex, Chain, PublicClient, WalletClient } from "viem";
 import {
     ChainId,
     CHAIN_ADDRESSES,
     FACTORY_ABI,
     KPI_TOKENS_MANAGER_ABI,
     ORACLES_MANAGER_ABI,
-    MULTICALL_ABI,
 } from "@carrot-kpi/sdk";
 import ora from "ora";
 import chalk from "chalk";
 import { createAnvil } from "@viem/anvil";
-import { create as createIPFSClient } from "ipfs";
-import { HttpGateway } from "ipfs-http-gateway";
-import { HttpApi } from "ipfs-http-server";
-import { clearConsole } from "../utils/index.js";
 import { join, resolve } from "path";
-import { existsSync, readFileSync, rmSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { homedir } from "os";
 import { Writable } from "stream";
-import { long as longCommitHash } from "git-rev-sync";
 import * as chainsObject from "viem/chains";
+import { $ } from "execa";
+import { createIPFSDaemon } from "../ipfs-daemon/createIPFSDaemon.js";
+import { create as createIPFSClient } from "ipfs-http-client";
+
+export const clearConsole = () => {
+    if (process.stdout.isTTY)
+        process.stdout.write(
+            process.platform === "win32"
+                ? "\x1B[2J\x1B[0f"
+                : "\x1B[2J\x1B[3J\x1B[H"
+        );
+};
 
 const chains = Object.values(chainsObject);
 
@@ -44,16 +52,21 @@ const MNEMONIC = "test test test test test test test test test test test junk";
 const DERIVATION_PATH = "m/44'/60'/0'/0/0";
 const IPFS_REPO_PATH = join(homedir(), ".cct/ipfs");
 
+interface CustomContract {
+    name: string;
+    address: Address;
+}
+
 const printInformation = (
-    deploymentAccountAddress,
-    deploymentAccountSecretKey,
-    deploymentAccountInitialBalance,
-    factoryAddress,
-    kpiTokensManagerAddress,
-    oraclesManagerAddress,
-    multicallAddress,
-    templateContractAddress,
-    customContracts
+    deploymentAccountAddress: Address,
+    deploymentAccountSecretKey: Hex,
+    deploymentAccountInitialBalance: string,
+    factoryAddress: Address,
+    kpiTokensManagerAddress: Address,
+    oraclesManagerAddress: Address,
+    multicallAddress: Address,
+    templateContractAddress: Address,
+    customContracts: CustomContract[]
 ) => {
     console.log(
         chalk.green(
@@ -123,31 +136,28 @@ const main = async () => {
 
     const forkCheckSpinner = ora();
     forkCheckSpinner.start(`Checking forked network chain id`);
-    let forkedNetworkChainId, forkedNetworkChain, forkNetworkClient;
+    let forkedChain: Chain, forkPublicClient: PublicClient;
     try {
-        forkNetworkClient = createPublicClient({
+        forkPublicClient = createPublicClient({
             transport: http(forkUrl),
         });
-        forkedNetworkChainId = await forkNetworkClient.getChainId();
-        forkedNetworkChain = chains.find(
-            (chain) => chain.id === forkedNetworkChainId
-        );
-        if (!(forkedNetworkChainId in ChainId) || !forkedNetworkChain) {
-            forkCheckSpinner.fail(
-                `Incompatible forked chain id ${forkedNetworkChainId}`
-            );
+        const chainId = await forkPublicClient.getChainId();
+        const chain = chains.find((chain) => chain.id === chainId) as
+            | Chain
+            | undefined;
+        if (!(chainId in ChainId) || !chain) {
+            forkCheckSpinner.fail(`Incompatible forked chain id ${chainId}`);
             console.log();
             console.log(
                 "Compatible chain ids are:",
-                Object.values(ChainId)
-                    .filter((chainId) => !isNaN(chainId))
-                    .join(", ")
+                Object.values(ChainId).join(", ")
             );
 
             process.exit(0);
         }
+        forkedChain = chain;
         forkCheckSpinner.succeed(
-            `Compatible forked chain id ${forkedNetworkChainId}`
+            `Compatible forked chain id ${forkedChain.id}`
         );
     } catch (error) {
         forkCheckSpinner.fail(
@@ -161,7 +171,7 @@ const main = async () => {
     const compileSpinner = ora();
     compileSpinner.start(`Compiling contracts`);
     try {
-        execSync("yarn build:contracts");
+        $`yarn build:contracts`;
         compileSpinner.succeed("Contracts compiled");
     } catch (error) {
         compileSpinner.fail("Could not compile contracts");
@@ -172,25 +182,25 @@ const main = async () => {
 
     const nodeSpinner = ora();
     nodeSpinner.start(
-        `Starting up local node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
+        `Starting up local node with fork URL ${forkUrl} and chain id ${forkedChain.id}`
     );
-    const chainAddresses = CHAIN_ADDRESSES[forkedNetworkChainId];
-    let nodeClient,
+    const chainAddresses = CHAIN_ADDRESSES[forkedChain.id as ChainId];
+    let nodeClient: PublicClient,
         kpiTokensManager,
         kpiTokensManagerOwner,
         oraclesManager,
         oraclesManagerOwner,
-        walletClient,
-        secretKey,
-        deploymentAccountInitialBalance;
+        walletClient: WalletClient,
+        secretKey: Hex,
+        deploymentAccountInitialBalance: bigint;
     try {
         const anvil = createAnvil({
             silent: false,
             forkUrl,
             noStorageCaching: true,
-            forkChainId: forkedNetworkChainId,
-            chainId: forkedNetworkChainId,
-            forkBlockNumber: await forkNetworkClient.getBlockNumber(),
+            forkChainId: forkedChain.id,
+            chainId: forkedChain.id,
+            forkBlockNumber: await forkPublicClient.getBlockNumber(),
             mnemonic: MNEMONIC,
             derivationPath: DERIVATION_PATH,
             accounts: 1,
@@ -203,43 +213,34 @@ const main = async () => {
         nodeClient = createPublicClient({
             transport: nodeTransport,
         });
-        await nodeClient.request({
-            method: "anvil_autoImpersonateAccount",
-            params: [true],
-        });
 
         const account = mnemonicToAccount(MNEMONIC, {
             path: DERIVATION_PATH,
         });
-        secretKey = bytesToHex(account.getHdKey().privateKey);
+        secretKey = bytesToHex(account.getHdKey().privateKey!);
         walletClient = createWalletClient({
-            account,
+            account: account,
             transport: nodeTransport,
-            chain: forkedNetworkChain,
+            chain: forkedChain,
+        });
+
+        const testClient = createTestClient({
+            mode: "anvil",
+            transport: nodeTransport,
         });
 
         // for some reason, even though we use the same mnemonic and derivation path as anvil,
         // the resulting account is different. So, the account derivation from the mnemonic
         // and derivation path is kept to keep things consistent, but it's required to deal
         // some eth directly to the different account through an anvil sepcific method.
-        await nodeClient.request({
-            method: "anvil_setBalance",
-            params: [
-                account.address,
-                toHex(
-                    parseUnits(
-                        "1000",
-                        forkedNetworkChain.nativeCurrency.decimals
-                    )
-                ),
-            ],
+        await testClient.setBalance({
+            address: account.address,
+            value: parseUnits("1000", forkedChain.nativeCurrency.decimals),
         });
 
-        deploymentAccountInitialBalance = formatEther(
-            await nodeClient.getBalance({
-                address: walletClient.account.address,
-            })
-        );
+        deploymentAccountInitialBalance = await nodeClient.getBalance({
+            address: account.address,
+        });
 
         kpiTokensManager = getContract({
             address: chainAddresses.kpiTokensManager,
@@ -257,10 +258,13 @@ const main = async () => {
         });
         oraclesManagerOwner = await oraclesManager.read.owner();
 
+        await testClient.impersonateAccount({ address: kpiTokensManagerOwner });
+        await testClient.impersonateAccount({ address: oraclesManagerOwner });
+
         nodeSpinner.succeed(`Started up local node with fork URL ${forkUrl}`);
     } catch (error) {
         nodeSpinner.fail(
-            `Could not start up node with fork URL ${forkUrl} and chain id ${forkedNetworkChainId}`
+            `Could not start up node with fork URL ${forkUrl} and chain id ${forkedChain.id}`
         );
         console.log();
         console.log(error);
@@ -271,41 +275,36 @@ const main = async () => {
     ipfsNodeSpinner.start("Starting up local IPFS node");
     let specificationCid;
     try {
-        if (existsSync(IPFS_REPO_PATH))
-            rmSync(IPFS_REPO_PATH, {
-                force: true,
+        const configPath = join(IPFS_REPO_PATH, "./config");
+        if (!existsSync(IPFS_REPO_PATH)) {
+            mkdirSync(IPFS_REPO_PATH, {
                 recursive: true,
             });
-        const ipfs = await createIPFSClient({
-            silent: true,
-            repo: IPFS_REPO_PATH,
-            config: {
-                Addresses: {
-                    API: `/ip4/127.0.0.1/tcp/${IPFS_HTTP_API_PORT}`,
-                    Gateway: `/ip4/127.0.0.1/tcp/${IPFS_GATEWAY_API_PORT}`,
-                },
-                API: {
-                    HTTPHeaders: {
-                        "Access-Control-Allow-Origin": ["*"],
-                    },
-                },
-            },
-        });
+            await $({ env: { IPFS_PATH: IPFS_REPO_PATH } })`ipfs init`;
+            const jsonConfig = readFileSync(configPath, "utf8");
+            const config = JSON.parse(jsonConfig);
+            config.Addresses.API = `/ip4/127.0.0.1/tcp/${IPFS_HTTP_API_PORT}`;
+            config.Addresses.Gateway = `/ip4/127.0.0.1/tcp/${IPFS_GATEWAY_API_PORT}`;
+            config.API.HTTPHeaders = { "Access-Control-Allow-Origin": ["*"] };
+            writeFileSync(configPath, JSON.stringify(config, null, 4));
+        }
 
-        await new HttpGateway(ipfs).start();
-        await new HttpApi(ipfs).start();
+        const ipfsDaemon = createIPFSDaemon({ repoPath: IPFS_REPO_PATH });
+        await ipfsDaemon.start();
+
+        const ipfsClient = createIPFSClient({
+            url: `http://127.0.0.1:${IPFS_HTTP_API_PORT}`,
+        });
 
         const specificationContent = JSON.parse(
             readFileSync(specificationLocation).toString()
         );
-        const commitHash = longCommitHash(process.cwd());
-        const result = await ipfs.add(
+        const result = await ipfsClient.add(
             {
                 path: "./base.json",
-                content: JSON.stringify({
-                    ...specificationContent,
-                    commitHash,
-                }),
+                // parse and stringify instead of using the spec file
+                // directly in order to minify the json spec
+                content: JSON.stringify(specificationContent),
             },
             { wrapWithDirectory: true }
         );
@@ -323,9 +322,8 @@ const main = async () => {
         "Deploying and setting up custom template on target network"
     );
     let factory,
-        multicall,
-        templateAddress,
-        customContracts,
+        templateAddress: Address,
+        customContracts: CustomContract[],
         frontendGlobals,
         predictedTemplateId;
     try {
@@ -334,14 +332,10 @@ const main = async () => {
             abi: FACTORY_ABI,
             walletClient,
         });
-        multicall = getContract({
-            address: chainAddresses.multicall,
-            abi: MULTICALL_ABI,
-            publicClient: nodeClient,
-        });
 
         const isKpiTokenTemplate =
-            JSON.parse(readFileSync(pkgLocation)).templateType === "kpi-token";
+            JSON.parse(readFileSync(pkgLocation, "utf-8")).templateType ===
+            "kpi-token";
         const templatesManager = isKpiTokenTemplate
             ? kpiTokensManager
             : oraclesManager;
@@ -351,7 +345,7 @@ const main = async () => {
         );
         const { setupFork } = await import(setupForkScriptLocation);
         const setupResult = await setupFork({
-            forkedNetworkChain,
+            forkedChain,
             factory,
             kpiTokensManager,
             oraclesManager,
@@ -367,6 +361,7 @@ const main = async () => {
             address: isKpiTokenTemplate
                 ? chainAddresses.kpiTokensManager
                 : chainAddresses.oraclesManager,
+            chain: forkedChain,
             abi: KPI_TOKENS_MANAGER_ABI,
             functionName: "addTemplate",
             args: [templateAddress, specificationCid],
@@ -393,11 +388,11 @@ const main = async () => {
         const { startPlayground } = await import(startPlaygroundScriptLocation);
         process.chdir("packages/frontend");
         await startPlayground(
-            forkedNetworkChainId,
+            forkedChain.id,
             predictedTemplateId,
             secretKey,
             Object.entries(frontendGlobals).reduce(
-                (accumulator, [key, rawValue]) => {
+                (accumulator: Record<string, string>, [key, rawValue]) => {
                     accumulator[key] = JSON.stringify(rawValue);
                     return accumulator;
                 },
@@ -413,13 +408,13 @@ const main = async () => {
                     CCT_IPFS_RPC_API_URL: JSON.stringify(
                         `http://127.0.0.1:${IPFS_RPC_API_PORT}`
                     ),
-                    CCT_CHAIN_ID: JSON.stringify(forkedNetworkChainId),
+                    CCT_CHAIN_ID: JSON.stringify(forkedChain.id),
                     CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId),
                     CCT_TEMPLATE_ADDRESS: JSON.stringify(templateAddress),
                     CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY:
                         JSON.stringify(secretKey),
                     CCT_DEPLOYMENT_ACCOUNT_ADDRESS: JSON.stringify(
-                        walletClient.account.address
+                        walletClient.account!.address
                     ),
                 }
             ),
@@ -427,9 +422,12 @@ const main = async () => {
                 write(chunk, _, callback) {
                     clearConsole();
                     printInformation(
-                        walletClient.account.address,
+                        walletClient.account!.address,
                         secretKey,
-                        deploymentAccountInitialBalance,
+                        formatUnits(
+                            deploymentAccountInitialBalance,
+                            forkedChain.nativeCurrency.decimals
+                        ),
                         chainAddresses.factory,
                         chainAddresses.kpiTokensManager,
                         chainAddresses.oraclesManager,
