@@ -25,7 +25,7 @@ import ora from "ora";
 import chalk from "chalk";
 import { createAnvil } from "@viem/anvil";
 import { join, resolve } from "path";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "fs";
 import { homedir } from "os";
 import { Writable } from "stream";
 import * as chainsObject from "viem/chains";
@@ -276,18 +276,40 @@ const main = async () => {
     let specificationCid;
     try {
         const configPath = join(IPFS_REPO_PATH, "./config");
-        if (!existsSync(IPFS_REPO_PATH)) {
-            mkdirSync(IPFS_REPO_PATH, {
+        if (existsSync(IPFS_REPO_PATH))
+            rmSync(IPFS_REPO_PATH, {
+                force: true,
                 recursive: true,
             });
-            await $({ env: { IPFS_PATH: IPFS_REPO_PATH } })`ipfs init`;
-            const jsonConfig = readFileSync(configPath, "utf8");
-            const config = JSON.parse(jsonConfig);
-            config.Addresses.API = `/ip4/127.0.0.1/tcp/${IPFS_HTTP_API_PORT}`;
-            config.Addresses.Gateway = `/ip4/127.0.0.1/tcp/${IPFS_GATEWAY_API_PORT}`;
-            config.API.HTTPHeaders = { "Access-Control-Allow-Origin": ["*"] };
-            writeFileSync(configPath, JSON.stringify(config, null, 4));
-        }
+
+        mkdirSync(IPFS_REPO_PATH, {
+            recursive: true,
+        });
+        await $({ env: { IPFS_PATH: IPFS_REPO_PATH } })`ipfs init`;
+        const jsonConfig = readFileSync(configPath, "utf8");
+        const config = JSON.parse(jsonConfig);
+        config.Addresses.API = `/ip4/127.0.0.1/tcp/${IPFS_HTTP_API_PORT}`;
+        config.Addresses.Gateway = `/ip4/127.0.0.1/tcp/${IPFS_GATEWAY_API_PORT}`;
+        config.API.HTTPHeaders = { "Access-Control-Allow-Origin": ["*"] };
+        config.Peering = {
+            Peers: [
+                {
+                    ID: "12D3KooWAijC3pWzCQsRaeNsmGE6NK2UfHgc1rD28L2kuYRV5ghE",
+                    Addrs: [
+                        "/ip4/146.190.184.28:4001/tcp/4001",
+                        "/ip4/146.190.184.28:4001/udp/4001/quic",
+                    ],
+                },
+                {
+                    ID: "12D3KooWCUPbbhRFbuHZD8LWVBD7gqYHN7AbVhfsbPgd4zZonZQL",
+                    Addrs: [
+                        "/ip4/143.244.212.32:4001/tcp/4001",
+                        "/ip4/143.244.212.32:4001/udp/4001/quic",
+                    ],
+                },
+            ],
+        };
+        writeFileSync(configPath, JSON.stringify(config, null, 4));
 
         const ipfsDaemon = createIPFSDaemon({ repoPath: IPFS_REPO_PATH });
         await ipfsDaemon.start();
