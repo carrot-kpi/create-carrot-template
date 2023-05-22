@@ -296,15 +296,15 @@ const main = async () => {
                 {
                     ID: "12D3KooWAijC3pWzCQsRaeNsmGE6NK2UfHgc1rD28L2kuYRV5ghE",
                     Addrs: [
-                        "/ip4/146.190.184.28:4001/tcp/4001",
-                        "/ip4/146.190.184.28:4001/udp/4001/quic",
+                        "/ip4/146.190.184.28/tcp/4001",
+                        "/ip4/146.190.184.28/udp/4001/quic",
                     ],
                 },
                 {
                     ID: "12D3KooWCUPbbhRFbuHZD8LWVBD7gqYHN7AbVhfsbPgd4zZonZQL",
                     Addrs: [
-                        "/ip4/143.244.212.32:4001/tcp/4001",
-                        "/ip4/143.244.212.32:4001/udp/4001/quic",
+                        "/ip4/143.244.212.32/tcp/4001",
+                        "/ip4/143.244.212.32/udp/4001/quic",
                     ],
                 },
             ],
