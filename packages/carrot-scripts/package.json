@@ -32,8 +32,8 @@
     "scripts": {
         "format": "eslint --fix --ext .tsx,.ts,.js,.json ./",
         "clean": "rimraf ./dist",
-        "compile": "yarn clean && tsc",
-        "prepublishOnly": "yarn compile"
+        "build": "yarn clean && tsc",
+        "prepublishOnly": "yarn build"
     },
     "bin": {
         "carrot-scripts": "./dist/index.js"
