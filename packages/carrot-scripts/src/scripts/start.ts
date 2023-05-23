@@ -64,7 +64,7 @@ const printInformation = (
     factoryAddress: Address,
     kpiTokensManagerAddress: Address,
     oraclesManagerAddress: Address,
-    multicallAddress: Address,
+    multicallAddress: Address | undefined,
     templateContractAddress: Address,
     customContracts: CustomContract[]
 ) => {
@@ -96,7 +96,7 @@ const printInformation = (
     console.log("  KPI tokens factory:", factoryAddress);
     console.log("  KPI tokens manager:", kpiTokensManagerAddress);
     console.log("  Oracles manager:", oraclesManagerAddress);
-    console.log("  Multicall:", multicallAddress);
+    if (multicallAddress) console.log("  Multicall:", multicallAddress);
     console.log("  Template:", templateContractAddress);
     if (customContracts)
         customContracts.map(({ name, address }) => {
@@ -453,7 +453,7 @@ const main = async () => {
                         chainAddresses.factory,
                         chainAddresses.kpiTokensManager,
                         chainAddresses.oraclesManager,
-                        chainAddresses.multicall,
+                        forkedChain.contracts?.multicall3?.address,
                         templateAddress,
                         customContracts
                     );
