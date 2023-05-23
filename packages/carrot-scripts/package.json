@@ -39,18 +39,19 @@
         "carrot-scripts": "./dist/index.js"
     },
     "dependencies": {
-        "@carrot-kpi/sdk": "^1.26.0",
+        "@carrot-kpi/sdk": "^1.27.0",
         "@viem/anvil": "^0.0.5",
         "chalk": "^5.2.0",
         "execa": "^7.1.1",
         "ipfs-http-client": "^60.0.0",
         "ora": "^6.3.1",
         "tsconfig": "*",
-        "viem": "^0.3.30"
+        "viem": "^0.3.35"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^25.0.0",
         "@rollup/plugin-node-resolve": "^15.0.2",
+        "eslint": "^8.41.0",
         "eslint-config-custom": "*",
         "rimraf": "^5.0.1",
         "rollup-plugin-peer-deps-external": "^2.2.4",
