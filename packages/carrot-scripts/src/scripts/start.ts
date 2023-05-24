@@ -23,7 +23,7 @@ import {
 } from "@carrot-kpi/sdk";
 import ora from "ora";
 import chalk from "chalk";
-import { createAnvil } from "@viem/anvil";
+import ganache from "@carrot-kpi/ganache";
 import { join, resolve } from "path";
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "fs";
 import { homedir } from "os";
@@ -44,7 +44,7 @@ export const clearConsole = () => {
 
 const chains = Object.values(chainsObject);
 
-const ANVIL_PORT = 9001;
+const NODE_PORT = 9001;
 const IPFS_GATEWAY_API_PORT = 9090;
 const IPFS_HTTP_API_PORT = 5002;
 const IPFS_RPC_API_PORT = 5003;
@@ -82,8 +82,8 @@ const printInformation = (
     console.log();
     console.log(chalk.cyan("RPC endpoints:"));
     console.log();
-    console.log(`  http://127.0.0.1:${ANVIL_PORT}`);
-    console.log(`  ws://127.0.0.1:${ANVIL_PORT}`);
+    console.log(`  http://127.0.0.1:${NODE_PORT}`);
+    console.log(`  ws://127.0.0.1:${NODE_PORT}`);
     console.log();
     console.log(chalk.cyan("IPFS endpoints:"));
     console.log();
@@ -194,22 +194,25 @@ const main = async () => {
         secretKey: Hex,
         deploymentAccountInitialBalance: bigint;
     try {
-        const anvil = createAnvil({
-            silent: false,
-            forkUrl,
-            noStorageCaching: true,
-            forkChainId: forkedChain.id,
-            chainId: forkedChain.id,
-            forkBlockNumber: await forkPublicClient.getBlockNumber(),
-            mnemonic: MNEMONIC,
-            derivationPath: DERIVATION_PATH,
-            accounts: 1,
-            port: ANVIL_PORT,
-            host: "127.0.0.1",
+        const ganacheServer = ganache.server({
+            fork: { url: forkUrl, deleteCache: true, disableCache: true },
+            chain: {
+                chainId: forkedChain.id,
+            },
+            wallet: {
+                totalAccounts: 0,
+            },
+            logging: {
+                quiet: true,
+            },
         });
-        await anvil.start();
+        await new Promise<void>((resolve, reject) => {
+            ganacheServer.once("open").then(() => {
+                resolve();
+            });
+        });
 
-        const nodeTransport = http(`http://127.0.0.1:${ANVIL_PORT}`);
+        const nodeTransport = http(`http://127.0.0.1:${NODE_PORT}`);
         nodeClient = createPublicClient({
             transport: nodeTransport,
         });
@@ -225,7 +228,7 @@ const main = async () => {
         });
 
         const testClient = createTestClient({
-            mode: "anvil",
+            mode: "ganache",
             transport: nodeTransport,
         });
 
