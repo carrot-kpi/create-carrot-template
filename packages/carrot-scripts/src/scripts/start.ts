@@ -2,18 +2,14 @@
 
 // TODO: split subcommands across various files
 
-import { mnemonicToAccount } from "viem/accounts";
 import {
     createWalletClient,
     createPublicClient,
     http,
     getContract,
-    parseUnits,
-    bytesToHex,
-    createTestClient,
     formatUnits,
-    toHex,
 } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 import type { Address, Hex, Chain, PublicClient, WalletClient } from "viem";
 import {
     ChainId,
@@ -33,6 +29,7 @@ import * as chainsObject from "viem/chains";
 import { $ } from "execa";
 import { createIPFSDaemon } from "../ipfs-daemon/createIPFSDaemon.js";
 import { create as createIPFSClient } from "ipfs-http-client";
+import { providers, Contract } from "ethers";
 
 export const clearConsole = () => {
     if (process.stdout.isTTY)
@@ -212,7 +209,9 @@ const main = async () => {
                 chainId: forkedChain.id,
             },
             wallet: {
-                totalAccounts: 0,
+                totalAccounts: 1,
+                mnemonic: MNEMONIC,
+                hdPath: DERIVATION_PATH,
                 unlockedAccounts: [kpiTokensManagerOwner, oraclesManagerOwner],
             },
             logging: {
@@ -229,35 +228,21 @@ const main = async () => {
             transport: nodeTransport,
         });
 
-        const account = mnemonicToAccount(MNEMONIC, {
-            path: DERIVATION_PATH,
-        });
-        secretKey = bytesToHex(account.getHdKey().privateKey!);
+        const initialAccounts =
+            await ganacheServer.provider.getInitialAccounts();
+        const [accountAddress, initialAccount] =
+            Object.entries(initialAccounts)[0];
+
+        secretKey = initialAccount.secretKey as Hex;
+        const account = privateKeyToAccount(secretKey);
         walletClient = createWalletClient({
-            account: account,
+            account,
             transport: nodeTransport,
             chain: forkedChain,
         });
 
-        const testClient = createTestClient({
-            mode: "ganache",
-            transport: nodeTransport,
-        });
-
-        // for some reason, even though we use the same mnemonic and derivation path as anvil,
-        // the resulting account is different. So, the account derivation from the mnemonic
-        // and derivation path is kept to keep things consistent, but it's required to deal
-        // some eth directly to the different account through an anvil sepcific method.
-        await testClient.request({
-            method: "evm_setAccountBalance" as any,
-            params: [
-                account.address,
-                toHex(parseUnits("1000", forkedChain.nativeCurrency.decimals)),
-            ],
-        });
-
         deploymentAccountInitialBalance = await nodeClient.getBalance({
-            address: account.address,
+            address: accountAddress as Address,
         });
 
         kpiTokensManager = getContract({
@@ -370,13 +355,23 @@ const main = async () => {
         const isKpiTokenTemplate =
             JSON.parse(readFileSync(pkgLocation, "utf-8")).templateType ===
             "kpi-token";
-        const templatesManager = isKpiTokenTemplate
-            ? kpiTokensManager
-            : oraclesManager;
 
-        predictedTemplateId = Number(
-            await templatesManager.read.nextTemplateId()
+        const provider = new providers.JsonRpcProvider(
+            `http://localhost:${NODE_PORT}`
         );
+        const templatesManager = isKpiTokenTemplate
+            ? new Contract(
+                  chainAddresses.kpiTokensManager,
+                  KPI_TOKENS_MANAGER_ABI,
+                  await provider.getSigner(kpiTokensManagerOwner)
+              )
+            : new Contract(
+                  chainAddresses.oraclesManager,
+                  KPI_TOKENS_MANAGER_ABI,
+                  await provider.getSigner(oraclesManagerOwner)
+              );
+
+        predictedTemplateId = Number(await templatesManager.nextTemplateId());
         const { setupFork } = await import(setupForkScriptLocation);
         const setupResult = await setupFork({
             forkedChain,
@@ -391,19 +386,7 @@ const main = async () => {
         customContracts = setupResult.customContracts;
         frontendGlobals = setupResult.frontendGlobals;
 
-        const { request } = await nodeClient.simulateContract({
-            address: isKpiTokenTemplate
-                ? chainAddresses.kpiTokensManager
-                : chainAddresses.oraclesManager,
-            chain: forkedChain,
-            abi: KPI_TOKENS_MANAGER_ABI,
-            functionName: "addTemplate",
-            args: [templateAddress, specificationCid],
-            account: isKpiTokenTemplate
-                ? kpiTokensManagerOwner
-                : oraclesManagerOwner,
-        });
-        await walletClient.writeContract(request);
+        await templatesManager.addTemplate(templateAddress, specificationCid);
 
         templateDeploymentSpinner.succeed(
             "Custom template deployed and set up on target network"
