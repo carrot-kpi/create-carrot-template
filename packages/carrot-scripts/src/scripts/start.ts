@@ -12,6 +12,7 @@ import {
     bytesToHex,
     createTestClient,
     formatUnits,
+    toHex,
 } from "viem";
 import type { Address, Hex, Chain, PublicClient, WalletClient } from "viem";
 import {
@@ -194,6 +195,17 @@ const main = async () => {
         secretKey: Hex,
         deploymentAccountInitialBalance: bigint;
     try {
+        kpiTokensManagerOwner = await forkPublicClient.readContract({
+            address: chainAddresses.kpiTokensManager,
+            abi: KPI_TOKENS_MANAGER_ABI,
+            functionName: "owner",
+        });
+        oraclesManagerOwner = await forkPublicClient.readContract({
+            address: chainAddresses.oraclesManager,
+            abi: KPI_TOKENS_MANAGER_ABI,
+            functionName: "owner",
+        });
+
         const ganacheServer = ganache.server({
             fork: { url: forkUrl, deleteCache: true, disableCache: true },
             chain: {
@@ -201,15 +213,15 @@ const main = async () => {
             },
             wallet: {
                 totalAccounts: 0,
+                unlockedAccounts: [kpiTokensManagerOwner, oraclesManagerOwner],
             },
             logging: {
                 quiet: true,
             },
         });
         await new Promise<void>((resolve, reject) => {
-            ganacheServer.once("open").then(() => {
-                resolve();
-            });
+            ganacheServer.once("open").then(resolve);
+            ganacheServer.listen(NODE_PORT).catch(reject);
         });
 
         const nodeTransport = http(`http://127.0.0.1:${NODE_PORT}`);
@@ -236,9 +248,12 @@ const main = async () => {
         // the resulting account is different. So, the account derivation from the mnemonic
         // and derivation path is kept to keep things consistent, but it's required to deal
         // some eth directly to the different account through an anvil sepcific method.
-        await testClient.setBalance({
-            address: account.address,
-            value: parseUnits("1000", forkedChain.nativeCurrency.decimals),
+        await testClient.request({
+            method: "evm_setAccountBalance" as any,
+            params: [
+                account.address,
+                toHex(parseUnits("1000", forkedChain.nativeCurrency.decimals)),
+            ],
         });
 
         deploymentAccountInitialBalance = await nodeClient.getBalance({
@@ -251,18 +266,12 @@ const main = async () => {
             walletClient,
             publicClient: nodeClient,
         });
-        kpiTokensManagerOwner = await kpiTokensManager.read.owner();
-
         oraclesManager = getContract({
             address: chainAddresses.oraclesManager,
             abi: ORACLES_MANAGER_ABI,
             walletClient,
             publicClient: nodeClient,
         });
-        oraclesManagerOwner = await oraclesManager.read.owner();
-
-        await testClient.impersonateAccount({ address: kpiTokensManagerOwner });
-        await testClient.impersonateAccount({ address: oraclesManagerOwner });
 
         nodeSpinner.succeed(`Started up local node with fork URL ${forkUrl}`);
     } catch (error) {
@@ -382,7 +391,7 @@ const main = async () => {
         customContracts = setupResult.customContracts;
         frontendGlobals = setupResult.frontendGlobals;
 
-        await walletClient.writeContract({
+        const { request } = await nodeClient.simulateContract({
             address: isKpiTokenTemplate
                 ? chainAddresses.kpiTokensManager
                 : chainAddresses.oraclesManager,
@@ -394,6 +403,7 @@ const main = async () => {
                 ? kpiTokensManagerOwner
                 : oraclesManagerOwner,
         });
+        await walletClient.writeContract(request);
 
         templateDeploymentSpinner.succeed(
             "Custom template deployed and set up on target network"
