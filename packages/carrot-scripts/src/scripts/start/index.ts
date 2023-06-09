@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import chalk from "chalk";
-import { clearConsole } from "../utils/index.js";
-import { checkFork } from "./start/check-fork.js";
-import { compileContracts } from "./start/compile-contracts.js";
-import { startLocalNode } from "./start/start-local-node.js";
-import { startIPFSNode } from "./start/start-ipfs-node.js";
-import { deployTemplate } from "./start/deploy-template.js";
-import { startPlayground } from "./start/start-playground.js";
+import { clearConsole } from "../../utils/index.js";
+import { checkFork } from "./check-fork.js";
+import { compileContracts } from "./compile-contracts.js";
+import { startLocalNode } from "./start-local-node.js";
+import { startIPFSNode } from "./start-ipfs-node.js";
+import { deployTemplate } from "./deploy-template.js";
+import { startPlayground } from "./start-playground.js";
 
 const [forkUrl] = process.argv.slice(2);
 if (!forkUrl) {

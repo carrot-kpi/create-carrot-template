@@ -40,24 +40,24 @@
     },
     "dependencies": {
         "@carrot-kpi/ganache": "^0.2.0",
-        "@carrot-kpi/sdk": "^1.27.3",
+        "@carrot-kpi/sdk": "^1.27.5",
         "chalk": "^5.2.0",
         "ethers": "5",
         "execa": "^7.1.1",
-        "ipfs-http-client": "^60.0.0",
+        "ipfs-http-client": "^60.0.1",
         "ora": "^6.3.1",
         "tsconfig": "*",
-        "viem": "^0.3.36"
+        "viem": "^1.0.2"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^25.0.0",
-        "@rollup/plugin-node-resolve": "^15.0.2",
-        "eslint": "^8.41.0",
+        "@rollup/plugin-node-resolve": "^15.1.0",
+        "eslint": "^8.42.0",
         "eslint-config-custom": "*",
         "rimraf": "^5.0.1",
         "rollup-plugin-peer-deps-external": "^2.2.4",
         "rollup-plugin-typescript2": "^0.34.1",
-        "turbo": "^1.9.9",
-        "typescript": "^5.0.4"
+        "turbo": "^1.10.2",
+        "typescript": "^5.1.3"
     }
 }
