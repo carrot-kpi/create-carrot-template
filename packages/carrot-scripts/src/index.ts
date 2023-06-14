@@ -22,7 +22,11 @@ const remainingArgs =
     scriptIndex > 0 ? args.splice(scriptIndex, 1) : args.slice(1);
 
 execaNode(
-    join(dirname(fileURLToPath(import.meta.url)), "./scripts", `${script}.js`),
+    join(
+        dirname(fileURLToPath(import.meta.url)),
+        `./scripts/${script}`,
+        "index.js"
+    ),
     remainingArgs,
     { stdio: "inherit" }
 );
