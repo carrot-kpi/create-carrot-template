@@ -77,7 +77,7 @@ export const startLocalNode = async (
         });
 
         const ganacheServer = ganache.server({
-            fork: { url: forkURL, deleteCache: true, disableCache: true },
+            fork: { url: forkURL, deleteCache: true },
             chain: {
                 chainId: forkedChain.id,
             },
