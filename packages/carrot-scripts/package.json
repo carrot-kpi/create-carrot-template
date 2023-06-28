@@ -47,12 +47,12 @@
         "ipfs-http-client": "^60.0.1",
         "ora": "^6.3.1",
         "tsconfig": "*",
-        "viem": "^1.0.2"
+        "viem": "^1.2.1"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^25.0.2",
         "@rollup/plugin-node-resolve": "^15.1.0",
-        "eslint": "^8.42.0",
+        "eslint": "^8.43.0",
         "eslint-config-custom": "*",
         "rimraf": "^5.0.1",
         "rollup-plugin-peer-deps-external": "^2.2.4",
