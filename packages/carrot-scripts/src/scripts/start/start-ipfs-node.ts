@@ -44,17 +44,17 @@ export const startIPFSNode = async (): Promise<StartIPFSNodeReturnValue> => {
         config.Peering = {
             Peers: [
                 {
-                    ID: "12D3KooWAijC3pWzCQsRaeNsmGE6NK2UfHgc1rD28L2kuYRV5ghE",
+                    ID: "12D3KooWPy8d5w4sMx2Jt6xZzGr5RN8oAHoGovUNUNKax4c2HhBt",
                     Addrs: [
-                        "/ip4/146.190.184.28/tcp/4001",
-                        "/ip4/146.190.184.28/udp/4001/quic",
+                        "/ip4/104.248.109.21/tcp/40001",
+                        "/ip4/104.248.109.21/udp/40000/quic",
                     ],
                 },
                 {
-                    ID: "12D3KooWCUPbbhRFbuHZD8LWVBD7gqYHN7AbVhfsbPgd4zZonZQL",
+                    ID: "12D3KooWMvyh55eTC7TGJUxboLsm3dnEhdZbfjs7K2Td3ivBt9ze",
                     Addrs: [
-                        "/ip4/143.244.212.32/tcp/4001",
-                        "/ip4/143.244.212.32/udp/4001/quic",
+                        "/ip4/104.248.109.21/tcp/41001",
+                        "/ip4/104.248.109.21/udp/41000/quic",
                     ],
                 },
             ],
