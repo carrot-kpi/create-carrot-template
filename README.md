@@ -1,3 +1,22 @@
+<br />
+
+<p align="center">
+    <img src=".github/static/logo.svg" alt="Carrot logo" width="60%" />
+</p>
+
+<br />
+
+<p align="center">
+    Carrot is a web3 protocol trying to make incentivization easier and more capital
+    efficient.
+</p>
+
+<br />
+
+<p align="center">
+    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
+</p>
+
 # Create Carrot Template
 
 Create Carrot template allows bootstrapping Carrot template projects in an easier way.
