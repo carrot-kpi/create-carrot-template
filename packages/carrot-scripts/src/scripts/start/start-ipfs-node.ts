@@ -46,15 +46,15 @@ export const startIPFSNode = async (): Promise<StartIPFSNodeReturnValue> => {
                 {
                     ID: "12D3KooWPy8d5w4sMx2Jt6xZzGr5RN8oAHoGovUNUNKax4c2HhBt",
                     Addrs: [
-                        "/ip4/104.248.109.21/tcp/40001",
-                        "/ip4/104.248.109.21/udp/40000/quic",
+                        "/ip4/159.203.159.42/tcp/4001",
+                        "/ip4/159.203.159.42/udp/4001/quic",
                     ],
                 },
                 {
                     ID: "12D3KooWMvyh55eTC7TGJUxboLsm3dnEhdZbfjs7K2Td3ivBt9ze",
                     Addrs: [
-                        "/ip4/104.248.109.21/tcp/41001",
-                        "/ip4/104.248.109.21/udp/41000/quic",
+                        "/ip4/206.189.252.234/tcp/4001",
+                        "/ip4/206.189.252.234/udp/4001/quic",
                     ],
                 },
             ],
