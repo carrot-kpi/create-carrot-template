@@ -12,7 +12,7 @@ export interface CheckForkReturnValue {
 }
 
 export const checkFork = async (
-    forkUrl: string
+    forkUrl: string,
 ): Promise<CheckForkReturnValue> => {
     const forkCheckSpinner = ora();
     forkCheckSpinner.start(`Checking forked network chain id`);
@@ -30,20 +30,20 @@ export const checkFork = async (
             console.log();
             console.log(
                 "Compatible chain ids are:",
-                Object.values(ChainId).join(", ")
+                Object.values(ChainId).join(", "),
             );
 
             process.exit(0);
         }
         forkedChain = chain;
         forkCheckSpinner.succeed(
-            `Compatible forked chain id ${forkedChain.id}`
+            `Compatible forked chain id ${forkedChain.id}`,
         );
 
         return { forkPublicClient, forkedChain };
     } catch (error) {
         forkCheckSpinner.fail(
-            `Error determining the forked chain id. Maybe your fork URL is malformed?`
+            `Error determining the forked chain id. Maybe your fork URL is malformed?`,
         );
         console.log();
         console.log(error);

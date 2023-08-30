@@ -15,12 +15,12 @@ if (!forkUrl) {
     console.error("If invoking directly:");
     console.log(
         `  ${chalk.cyan("carrot-scripts")} start ${chalk.green(
-            "<rpc-endpoint>"
-        )}`
+            "<rpc-endpoint>",
+        )}`,
     );
     console.log("  or if invoking from a Carrot Create Template project:");
     console.log(
-        `  ${chalk.cyan("yarn start")} ${chalk.green("<rpc_endpoint>")}`
+        `  ${chalk.cyan("yarn start")} ${chalk.green("<rpc_endpoint>")}`,
     );
     process.exit(0);
 }
@@ -61,7 +61,7 @@ const main = async () => {
         oraclesManagerOwner,
         localNodeClient,
         specificationCid,
-        localNodePort
+        localNodePort,
     );
     await startPlayground(
         forkedChain,
@@ -76,7 +76,7 @@ const main = async () => {
         ipfsGatewayPort,
         ipfsHttpAPIPort,
         ipfsRpcAPIPort,
-        mainAccountInitialBalance
+        mainAccountInitialBalance,
     );
 };
 

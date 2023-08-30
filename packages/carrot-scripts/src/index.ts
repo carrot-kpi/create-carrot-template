@@ -25,8 +25,8 @@ execaNode(
     join(
         dirname(fileURLToPath(import.meta.url)),
         `./scripts/${script}`,
-        "index.js"
+        "index.js",
     ),
     remainingArgs,
-    { stdio: "inherit" }
+    { stdio: "inherit" },
 );

@@ -46,8 +46,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
                 {
                     duplicates: true,
                     showNotFound: true,
-                }
-            )
+                },
+            ),
         );
         process.exit(0);
     }
@@ -56,21 +56,21 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.error("Please specify the template directory:");
         console.log(
             `  ${cyan("create-carrot-template")} [options] ${green(
-                "<template-directory>"
-            )}`
+                "<template-directory>",
+            )}`,
         );
         console.log();
         console.log("For example:");
         console.log(
             `  ${cyan("create-carrot-template")} [options] ${green(
-                "my-template"
-            )}`
+                "my-template",
+            )}`,
         );
         console.log();
         console.log(
             `Run ${cyan(
-                `${"create-carrot-template"} --help`
-            )} to see all options.`
+                `${"create-carrot-template"} --help`,
+            )} to see all options.`,
         );
         process.exit(0);
     }
@@ -79,20 +79,20 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.error("Please specify the template type:");
         console.log(
             `  ${cyan("create-carrot-template")} ${green(
-                "--kpi-token"
-            )} [options] <template-directory>`
+                "--kpi-token",
+            )} [options] <template-directory>`,
         );
         console.log("  or");
         console.log(
             `  ${cyan("create-carrot-template")} ${green(
-                "--oracle"
-            )} [options] <template-directory>`
+                "--oracle",
+            )} [options] <template-directory>`,
         );
         console.log();
         console.log(
             `Run ${cyan(
-                `${"create-carrot-template"} --help`
-            )} to see all options.`
+                `${"create-carrot-template"} --help`,
+            )} to see all options.`,
         );
         process.exit(0);
     }
@@ -101,20 +101,20 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.error("Please specify only one template type:");
         console.log(
             `  ${cyan("create-carrot-template")} ${green(
-                "--kpi-token"
-            )} [options] <template-directory>`
+                "--kpi-token",
+            )} [options] <template-directory>`,
         );
         console.log("  or");
         console.log(
             `  ${cyan("create-carrot-template")} ${green(
-                "--oracle"
-            )} [options] <template-directory>`
+                "--oracle",
+            )} [options] <template-directory>`,
         );
         console.log();
         console.log(
             `Run ${cyan(
-                `${"create-carrot-template"} --help`
-            )} to see all options.`
+                `${"create-carrot-template"} --help`,
+            )} to see all options.`,
         );
         process.exit(0);
     }
@@ -129,9 +129,9 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.error(
             red(
                 `Cannot create a project named ${green(
-                    `"${projectName}"`
-                )} because of npm naming restrictions:\n`
-            )
+                    `"${projectName}"`,
+                )} because of npm naming restrictions:\n`,
+            ),
         );
         [
             ...(validationResult.errors || []),
@@ -148,9 +148,9 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.error(
             red(
                 `Cannot create a project in ${green(
-                    `"${projectDirectory}"`
-                )}: the folder is not empty`
-            )
+                    `"${projectDirectory}"`,
+                )}: the folder is not empty`,
+            ),
         );
         process.exit(0);
     }
@@ -159,7 +159,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     console.log(
         `Creating a new ${
             options.kpiToken ? "KPI token" : "oracle"
-        } template project in ${green(absoluteProjectPath)}.`
+        } template project in ${green(absoluteProjectPath)}.`,
     );
     console.log();
 
@@ -173,11 +173,11 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     projectPkg.templateType = options.kpiToken ? "kpi-token" : "oracle";
     renameSync(
         join(absoluteProjectPath, "gitignore"),
-        join(absoluteProjectPath, ".gitignore")
+        join(absoluteProjectPath, ".gitignore"),
     );
     await writeFile(
         join(absoluteProjectPath, "./package.json"),
-        JSON.stringify(projectPkg, undefined, 2)
+        JSON.stringify(projectPkg, undefined, 2),
     );
     ensureDirSync(join(absoluteProjectPath, "./packages"));
     spinner.succeed("Base project set up");
@@ -191,14 +191,14 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     try {
         spinner.start(
             `Setting up smart contracts using preset ${green(
-                contractsPreset
-            )}\n`
+                contractsPreset,
+            )}\n`,
         );
         execSync(
             `git clone https://github.com/carrot-kpi/cct-contracts-${
                 options.kpiToken ? "kpi-token" : "oracle"
             }-preset-${contractsPreset}.git ./packages/contracts`,
-            { stdio: options.verbose ? "inherit" : "ignore" }
+            { stdio: options.verbose ? "inherit" : "ignore" },
         );
         removeSync(join(absoluteProjectPath, "./packages/contracts/.git"));
         spinner.succeed(`Contracts preset ${green(contractsPreset)} set up`);
@@ -207,8 +207,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.log();
         console.log(
             red(
-                `Unexpected error while setting up frontend template ${contractsPreset}. Please report it as a bug:`
-            )
+                `Unexpected error while setting up frontend template ${contractsPreset}. Please report it as a bug:`,
+            ),
         );
         console.log(error);
         process.exit(0);
@@ -217,13 +217,13 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     spinner = ora();
     try {
         spinner.start(
-            `Setting up frontend using preset ${green(frontendPreset)}\n`
+            `Setting up frontend using preset ${green(frontendPreset)}\n`,
         );
         execSync(
             `git clone https://github.com/carrot-kpi/cct-frontend-${
                 options.kpiToken ? "kpi-token" : "oracle"
             }-preset-${frontendPreset}.git ./packages/frontend`,
-            { stdio: options.verbose ? "inherit" : "ignore" }
+            { stdio: options.verbose ? "inherit" : "ignore" },
         );
         removeSync(join(absoluteProjectPath, "./packages/frontend/.git"));
         spinner.succeed(`Frontend preset ${green(frontendPreset)} set up`);
@@ -232,8 +232,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.log();
         console.log(
             red(
-                `Unexpected error while setting up frontend template ${frontendPreset}. Please report it as a bug:`
-            )
+                `Unexpected error while setting up frontend template ${frontendPreset}. Please report it as a bug:`,
+            ),
         );
         console.log(error);
         process.exit(0);
@@ -250,8 +250,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.log();
         console.log(
             red(
-                `Unexpected error while initializing git repository. Please report it as a bug:`
-            )
+                `Unexpected error while initializing git repository. Please report it as a bug:`,
+            ),
         );
         console.log(error);
         process.exit(0);
@@ -262,7 +262,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         spinner.start("Installing dependencies");
         execSync(
             "npm install --save-dev @commitlint/cli @commitlint/config-conventional husky carrot-scripts",
-            { stdio: options.verbose ? "inherit" : "ignore" }
+            { stdio: options.verbose ? "inherit" : "ignore" },
         );
         spinner.succeed("Dependencies installed");
     } catch (error) {
@@ -270,8 +270,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.log();
         console.log(
             red(
-                `Unexpected error while installing dependencies. Please report it as a bug:`
-            )
+                `Unexpected error while installing dependencies. Please report it as a bug:`,
+            ),
         );
         console.log(error);
         process.exit(0);
@@ -279,7 +279,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
 
     const contractsInitScriptLocation = join(
         absoluteProjectPath,
-        "./packages/contracts/.cct/init.js"
+        "./packages/contracts/.cct/init.js",
     );
     if (existsSync(contractsInitScriptLocation)) {
         spinner = ora();
@@ -296,8 +296,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
             console.log();
             console.log(
                 red(
-                    `Unexpected error while installing dependencies. Please report it as a bug:`
-                )
+                    `Unexpected error while installing dependencies. Please report it as a bug:`,
+                ),
             );
             console.log(error);
             process.exit(0);
@@ -306,7 +306,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
 
     const frontendInitScriptLocation = join(
         absoluteProjectPath,
-        "./packages/frontend/.cct/init.js"
+        "./packages/frontend/.cct/init.js",
     );
     if (existsSync(frontendInitScriptLocation)) {
         spinner = ora();
@@ -323,8 +323,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
             console.log();
             console.log(
                 red(
-                    `Unexpected error while installing dependencies. Please report it as a bug:`
-                )
+                    `Unexpected error while installing dependencies. Please report it as a bug:`,
+                ),
             );
             console.log(error);
             process.exit(0);
@@ -341,7 +341,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
             'git commit -m "chore: initial create-carrot-template commit"',
             {
                 stdio: options.verbose ? "inherit" : "ignore",
-            }
+            },
         );
         spinner.succeed("First commit performed");
     } catch (error) {
@@ -349,8 +349,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
         console.log();
         console.log(
             red(
-                `Unexpected error while installing dependencies. Please report it as a bug:`
-            )
+                `Unexpected error while installing dependencies. Please report it as a bug:`,
+            ),
         );
         console.log(error);
         process.exit(0);
@@ -359,8 +359,8 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     console.log();
     console.log(
         `Success! Created ${green(projectName)} at ${green(
-            absoluteProjectPath
-        )}`
+            absoluteProjectPath,
+        )}`,
     );
     console.log("Inside that directory, you can run several commands:");
     console.log();
@@ -396,7 +396,7 @@ export const createCarrotTemplate = async (projectDirectory, options) => {
     console.log();
     console.log(chalk.cyan(`  npm start -- <rpc-endpoint>`));
     console.log(
-        "    Spins up a local node, forking a given chain (determined by the given RPC endpoint) and a frontend playground interfacing with the local fork."
+        "    Spins up a local node, forking a given chain (determined by the given RPC endpoint) and a frontend playground interfacing with the local fork.",
     );
     console.log();
     console.log("Happy hacking!");

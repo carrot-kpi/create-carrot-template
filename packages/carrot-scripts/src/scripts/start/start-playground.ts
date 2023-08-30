@@ -15,7 +15,7 @@ import chalk from "chalk";
 import { CHAIN_ADDRESSES, ChainId } from "@carrot-kpi/sdk";
 
 const START_SCRIPT_LOCATION = resolve(
-    "./packages/frontend/.cct/start-playground.js"
+    "./packages/frontend/.cct/start-playground.js",
 );
 
 const printInformation = (
@@ -31,12 +31,12 @@ const printInformation = (
     localNodePort: number,
     gatewayPort: number,
     httpAPIPort: number,
-    rpcAPIPort: number
+    rpcAPIPort: number,
 ) => {
     console.log(
         chalk.green(
-            "Local playground successfully started up on target network!"
-        )
+            "Local playground successfully started up on target network!",
+        ),
     );
     console.log();
     console.log(chalk.cyan("Used chain-setup account:"));
@@ -84,7 +84,7 @@ export const startPlayground = async (
     ipfsGatewayPort: number,
     ipfsHttpAPIPort: number,
     ipfsRpcAPIPort: number,
-    deploymentAccountInitialBalance: bigint
+    deploymentAccountInitialBalance: bigint,
 ) => {
     const chainAddresses = CHAIN_ADDRESSES[forkedChain.id as ChainId];
 
@@ -106,13 +106,13 @@ export const startPlayground = async (
                     __DEV__: JSON.stringify(true),
                     CCT_RPC_URL: JSON.stringify(localNodeClient.transport.url),
                     CCT_IPFS_GATEWAY_URL: JSON.stringify(
-                        `http://127.0.0.1:${ipfsGatewayPort}`
+                        `http://127.0.0.1:${ipfsGatewayPort}`,
                     ),
                     CCT_IPFS_HTTP_API_URL: JSON.stringify(
-                        `http://127.0.0.1:${ipfsHttpAPIPort}`
+                        `http://127.0.0.1:${ipfsHttpAPIPort}`,
                     ),
                     CCT_IPFS_RPC_API_URL: JSON.stringify(
-                        `http://127.0.0.1:${ipfsRpcAPIPort}`
+                        `http://127.0.0.1:${ipfsRpcAPIPort}`,
                     ),
                     CCT_CHAIN_ID: JSON.stringify(forkedChain.id),
                     CCT_TEMPLATE_ID: JSON.stringify(predictedTemplateId),
@@ -120,9 +120,9 @@ export const startPlayground = async (
                     CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY:
                         JSON.stringify(mainAccountSecretKey),
                     CCT_DEPLOYMENT_ACCOUNT_ADDRESS: JSON.stringify(
-                        mainAccountWalletClient.account!.address
+                        mainAccountWalletClient.account!.address,
                     ),
-                }
+                },
             ),
             new Writable({
                 write(chunk, _, callback) {
@@ -132,7 +132,7 @@ export const startPlayground = async (
                         mainAccountSecretKey,
                         formatUnits(
                             deploymentAccountInitialBalance,
-                            forkedChain.nativeCurrency.decimals
+                            forkedChain.nativeCurrency.decimals,
                         ),
                         chainAddresses.factory,
                         chainAddresses.kpiTokensManager,
@@ -143,13 +143,13 @@ export const startPlayground = async (
                         localNodePort,
                         ipfsGatewayPort,
                         ipfsHttpAPIPort,
-                        ipfsRpcAPIPort
+                        ipfsRpcAPIPort,
                     );
                     console.log();
                     console.log(chunk.toString().replace(/^/gm, `  `));
                     callback();
                 },
-            })
+            }),
         );
         frontendSpinner.stop();
     } catch (error) {

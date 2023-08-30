@@ -14,7 +14,7 @@ import { StartLocalNodeReturnValue } from "./start-local-node";
 
 const PACKAGE_JSON_LOCATION = resolve("./package.json");
 const SETUP_FORK_SCRIPT_LOCATION = resolve(
-    "./packages/contracts/.cct/setup-fork.js"
+    "./packages/contracts/.cct/setup-fork.js",
 );
 
 export interface DeployTemplateReturnValue {
@@ -38,13 +38,13 @@ export const deployTemplate = async (
     oraclesManagerOwner: Address,
     localNodeClient: PublicClient,
     specificationCid: string,
-    port: number
+    port: number,
 ): Promise<DeployTemplateReturnValue> => {
     const chainAddresses = CHAIN_ADDRESSES[forkedChain.id as ChainId];
 
     const templateDeploymentSpinner = ora();
     templateDeploymentSpinner.start(
-        "Deploying and setting up custom template on target network"
+        "Deploying and setting up custom template on target network",
     );
     let factory,
         templateAddress: Address,
@@ -63,18 +63,18 @@ export const deployTemplate = async (
                 .templateType === "kpi-token";
 
         const provider = new providers.JsonRpcProvider(
-            `http://localhost:${port}`
+            `http://localhost:${port}`,
         );
         const templatesManager = isKpiTokenTemplate
             ? new Contract(
                   chainAddresses.kpiTokensManager,
                   KPI_TOKENS_MANAGER_ABI,
-                  await provider.getSigner(kpiTokensManagerOwner)
+                  await provider.getSigner(kpiTokensManagerOwner),
               )
             : new Contract(
                   chainAddresses.oraclesManager,
                   KPI_TOKENS_MANAGER_ABI,
-                  await provider.getSigner(oraclesManagerOwner)
+                  await provider.getSigner(oraclesManagerOwner),
               );
 
         predictedTemplateId = Number(await templatesManager.nextTemplateId());
@@ -95,7 +95,7 @@ export const deployTemplate = async (
         await templatesManager.addTemplate(templateAddress, specificationCid);
 
         templateDeploymentSpinner.succeed(
-            "Custom template deployed and set up on target network"
+            "Custom template deployed and set up on target network",
         );
 
         return {
@@ -106,7 +106,7 @@ export const deployTemplate = async (
         };
     } catch (error) {
         templateDeploymentSpinner.fail(
-            "Could not deploy and set up custom template on target network"
+            "Could not deploy and set up custom template on target network",
         );
         console.log();
         console.log(error);
