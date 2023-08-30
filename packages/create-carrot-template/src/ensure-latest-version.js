@@ -6,14 +6,14 @@ const { cyan, yellow } = chalk;
 
 const logErrorAndExit = (name) => {
     console.error(
-        `Could not determine if you're running the latest version of \`${name}\`. Please try again in a few minutes.`
+        `Could not determine if you're running the latest version of \`${name}\`. Please try again in a few minutes.`,
     );
     console.log();
     console.log(`    If the problem persists, file an issue:`);
     console.log(
         `      ${cyan(
-            "https://github.com/carrot-kpi/create-carrot-template/issues/new"
-        )}`
+            "https://github.com/carrot-kpi/create-carrot-template/issues/new",
+        )}`,
     );
     process.exit(0);
 };
@@ -34,9 +34,9 @@ export const ensureLatestVersion = async (name, version) => {
                     const body = [];
                     response.on("data", (chunk) => body.push(chunk));
                     response.on("end", () =>
-                        resolve(JSON.parse(body.join("")))
+                        resolve(JSON.parse(body.join(""))),
                     );
-                }
+                },
             );
         });
         const { latest } = response;
@@ -46,8 +46,8 @@ export const ensureLatestVersion = async (name, version) => {
             console.error(
                 yellow(
                     `You are running \`create-carrot-template\` ${version}, which is behind the latest release (${latest}).\n\n` +
-                        "We recommend always using the latest version of `create-carrot-template` if possible."
-                )
+                        "We recommend always using the latest version of `create-carrot-template` if possible.",
+                ),
             );
             console.log();
             process.exit(0);

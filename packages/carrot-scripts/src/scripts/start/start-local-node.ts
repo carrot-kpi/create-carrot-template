@@ -49,11 +49,11 @@ export interface StartLocalNodeReturnValue {
 export const startLocalNode = async (
     forkURL: string,
     forkPublicClient: PublicClient,
-    forkedChain: Chain
+    forkedChain: Chain,
 ): Promise<StartLocalNodeReturnValue> => {
     const nodeSpinner = ora();
     nodeSpinner.start(
-        `Starting up local node with fork URL ${forkURL} and chain id ${forkedChain.id}`
+        `Starting up local node with fork URL ${forkURL} and chain id ${forkedChain.id}`,
     );
     const chainAddresses = CHAIN_ADDRESSES[forkedChain.id as ChainId];
     let localNodeClient: PublicClient,
@@ -80,6 +80,7 @@ export const startLocalNode = async (
             fork: { url: forkURL, deleteCache: true },
             chain: {
                 chainId: forkedChain.id,
+                networkId: forkedChain.id,
             },
             wallet: {
                 totalAccounts: 1,
@@ -145,7 +146,7 @@ export const startLocalNode = async (
         };
     } catch (error) {
         nodeSpinner.fail(
-            `Could not start up node with fork URL ${forkURL} and chain id ${forkedChain.id}`
+            `Could not start up node with fork URL ${forkURL} and chain id ${forkedChain.id}`,
         );
         console.log();
         console.log(error);

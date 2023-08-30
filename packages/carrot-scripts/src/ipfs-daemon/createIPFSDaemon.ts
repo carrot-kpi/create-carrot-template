@@ -15,7 +15,7 @@ export type IPFSDaemon = {
     on(event: "closed", listener: () => void): () => void;
     on(
         event: "exit",
-        listener: (code?: number, signal?: NodeJS.Signals) => void
+        listener: (code?: number, signal?: NodeJS.Signals) => void,
     ): () => void;
     readonly status: "idle" | "starting" | "stopping" | "listening";
     readonly logs: string[];
@@ -67,8 +67,8 @@ export function createIPFSDaemon(options: CreateIPFSDaemonOptions): IPFSDaemon {
                     error instanceof Error
                         ? error
                         : new Error(
-                              typeof error === "string" ? error : undefined
-                          )
+                              typeof error === "string" ? error : undefined,
+                          ),
                 );
             }
         },
@@ -86,8 +86,8 @@ export function createIPFSDaemon(options: CreateIPFSDaemonOptions): IPFSDaemon {
                     error instanceof Error
                         ? error
                         : new Error(
-                              typeof error === "string" ? error : undefined
-                          )
+                              typeof error === "string" ? error : undefined,
+                          ),
                 );
             }
         },

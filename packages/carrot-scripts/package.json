@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "carrot-scripts",
-    "version": "0.22.7",
+    "version": "0.22.10",
     "types": "./lib/carrot-template.d.ts",
     "keywords": [
         "ethereum",
@@ -30,7 +30,8 @@
         "./lib"
     ],
     "scripts": {
-        "format": "eslint --fix --ext .tsx,.ts,.js,.json ./",
+        "lint": "eslint --ext .tsx,.ts,.js .",
+        "format": "eslint --fix --ext .tsx,.ts,.js .",
         "clean": "rimraf ./dist",
         "build": "yarn clean && tsc",
         "prepublishOnly": "yarn build"
@@ -40,28 +41,28 @@
     },
     "dependencies": {
         "@carrot-kpi/ganache": "^0.2.0",
-        "@carrot-kpi/sdk": "^1.33.1",
+        "@carrot-kpi/sdk": "^1.33.2",
         "chalk": "^5.3.0",
         "ethers": "5",
-        "execa": "^7.2.0",
+        "execa": "^8.0.1",
         "ipfs-http-client": "^60.0.1",
         "ora": "^7.0.1",
         "tsconfig": "*",
-        "viem": "^1.6.0"
+        "viem": "^1.9.2"
     },
     "devDependencies": {
         "@commitlint/cli": "^17.7.1",
         "@commitlint/config-conventional": "^17.7.0",
         "@rollup/plugin-commonjs": "^25.0.4",
-        "@rollup/plugin-node-resolve": "^15.1.0",
-        "eslint": "^8.46.0",
+        "@rollup/plugin-node-resolve": "^15.2.1",
+        "eslint": "^8.48.0",
         "eslint-config-custom": "*",
         "eslint-config-prettier": "^9.0.0",
-        "prettier": "^3.0.1",
+        "prettier": "^3.0.3",
         "rimraf": "^5.0.1",
         "rollup-plugin-peer-deps-external": "^2.2.4",
         "rollup-plugin-typescript2": "^0.35.0",
-        "turbo": "^1.10.12",
-        "typescript": "^5.1.6"
+        "turbo": "^1.10.13",
+        "typescript": "^5.2.2"
     }
 }
