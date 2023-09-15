@@ -50,8 +50,8 @@ export function createIPFSDaemon(options: CreateIPFSDaemonOptions): IPFSDaemon {
 
     const {
         binary = "ipfs",
-        startTimeout = 10_000,
-        stopTimeout = 10_000,
+        startTimeout = 30_000,
+        stopTimeout = 30_000,
         repoPath,
     } = options;
 
