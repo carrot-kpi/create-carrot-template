@@ -45,12 +45,12 @@ export const startIPFSNode = async (): Promise<StartIPFSNodeReturnValue> => {
             Peers: [
                 // carrot
                 {
-                    ID: "12D3KooWEzNhcTKodPNXg5GKeWCKKpx8tERdkaSEYsZFHxaLYRoj",
-                    Addrs: ["/dnsaddr/ipfs-0.carrot-kpi.dev"],
+                    ID: "12D3KooWEvzPZz88zydB5xdJhULV3BQk1zrCM6QFPzwJnDnesdtd",
+                    Addrs: ["/dnsaddr/api.staging.ipfs-0.carrot.community"],
                 },
                 {
-                    ID: "12D3KooWEZnB3zEMpnewJCjVG7s3Mwf8efYvxNkU4WivWcYnneba",
-                    Addrs: ["/dnsaddr/ipfs-1.carrot-kpi.dev"],
+                    ID: "12D3KooWNGMdcVMee5H4TFZRz2fb1EZhxiMjrW6NyFoR7FDEHVJu",
+                    Addrs: ["/dnsaddr/api.staging.ipfs-1.carrot.community"],
                 },
                 // pinata
                 {
