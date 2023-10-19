@@ -18,6 +18,8 @@ import {
     http,
     createWalletClient,
     getContract,
+    createTestClient,
+    parseEther,
 } from "viem";
 import ganache from "@carrot-kpi/ganache";
 import { privateKeyToAccount } from "viem/accounts";
@@ -112,6 +114,20 @@ export const startLocalNode = async (
             account,
             transport: nodeTransport,
             chain: forkedChain,
+        });
+
+        // just in case, deal some eth to the manager owners
+        const testClient = createTestClient({
+            transport: nodeTransport,
+            mode: "ganache",
+        });
+        await testClient.setBalance({
+            address: kpiTokensManagerOwner,
+            value: parseEther("100"),
+        });
+        await testClient.setBalance({
+            address: oraclesManagerOwner,
+            value: parseEther("100"),
         });
 
         mainAccountInitialBalance = await localNodeClient.getBalance({
