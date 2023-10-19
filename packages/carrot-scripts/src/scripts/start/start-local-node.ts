@@ -1,6 +1,7 @@
 import {
     CHAIN_ADDRESSES,
     ChainId,
+    FACTORY_ABI,
     KPI_TOKENS_MANAGER_ABI,
     ORACLES_MANAGER_ABI,
 } from "@carrot-kpi/sdk";
@@ -23,6 +24,7 @@ import {
 } from "viem";
 import ganache from "@carrot-kpi/ganache";
 import { privateKeyToAccount } from "viem/accounts";
+import { Contract, providers } from "ethers";
 
 const MNEMONIC = "test test test test test test test test test test test junk";
 const DERIVATION_PATH = "m/44'/60'/0'/0/0";
@@ -67,6 +69,11 @@ export const startLocalNode = async (
         mainAccountSecretKey: Hex,
         mainAccountInitialBalance: bigint;
     try {
+        const kpiTokensFactoryOwner = await forkPublicClient.readContract({
+            address: chainAddresses.factory,
+            abi: FACTORY_ABI,
+            functionName: "owner",
+        });
         kpiTokensManagerOwner = await forkPublicClient.readContract({
             address: chainAddresses.kpiTokensManager,
             abi: KPI_TOKENS_MANAGER_ABI,
@@ -129,6 +136,17 @@ export const startLocalNode = async (
             address: oraclesManagerOwner,
             value: parseEther("100"),
         });
+
+        // and allow the main account as a creator
+        const provider = new providers.JsonRpcProvider(
+            `http://localhost:${PORT}`,
+        );
+        const factory = new Contract(
+            chainAddresses.factory,
+            FACTORY_ABI,
+            await provider.getSigner(kpiTokensFactoryOwner),
+        );
+        await factory.allowCreator(accountAddress);
 
         mainAccountInitialBalance = await localNodeClient.getBalance({
             address: accountAddress as Address,
