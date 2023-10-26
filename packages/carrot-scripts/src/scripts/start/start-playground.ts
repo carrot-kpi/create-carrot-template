@@ -103,7 +103,7 @@ export const startPlayground = async (
                     return accumulator;
                 },
                 {
-                    __DEV__: JSON.stringify(true),
+                    __PLAYGROUND__: JSON.stringify(true),
                     CCT_RPC_URL: JSON.stringify(localNodeClient.transport.url),
                     CCT_IPFS_GATEWAY_URL: JSON.stringify(
                         `http://127.0.0.1:${ipfsGatewayPort}`,

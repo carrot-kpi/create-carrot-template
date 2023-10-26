@@ -1,7 +1,7 @@
 import type { Hex } from "viem";
 
 declare global {
-    const __DEV__: boolean;
+    const __PLAYGROUND__: boolean;
     const CCT_RPC_URL: string;
     const CCT_IPFS_GATEWAY_URL: string;
     const CCT_IPFS_HTTP_API_URL: string;
