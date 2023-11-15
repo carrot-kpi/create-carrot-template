@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "carrot-scripts",
-    "version": "0.22.20",
+    "version": "0.22.21",
     "types": "./lib/carrot-template.d.ts",
     "keywords": [
         "ethereum",
