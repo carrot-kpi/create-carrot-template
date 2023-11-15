@@ -48,17 +48,17 @@
         "ipfs-http-client": "^60.0.1",
         "ora": "^7.0.1",
         "tsconfig": "*",
-        "viem": "^1.18.9"
+        "viem": "^1.19.1"
     },
     "devDependencies": {
-        "@commitlint/cli": "^18.2.0",
-        "@commitlint/config-conventional": "^18.1.0",
+        "@commitlint/cli": "^18.4.1",
+        "@commitlint/config-conventional": "^18.4.0",
         "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.2.3",
         "eslint": "^8.53.0",
         "eslint-config-custom": "*",
         "eslint-config-prettier": "^9.0.0",
-        "prettier": "^3.0.3",
+        "prettier": "^3.1.0",
         "rimraf": "^5.0.5",
         "rollup-plugin-peer-deps-external": "^2.2.4",
         "rollup-plugin-typescript2": "^0.36.0",
