@@ -40,29 +40,29 @@
         "carrot-scripts": "./dist/index.js"
     },
     "dependencies": {
-        "@carrot-kpi/ganache": "^0.2.0",
-        "@carrot-kpi/sdk": "^1.43.1",
+        "@carrot-kpi/sdk": "^1.45.1",
+        "@viem/anvil": "^0.0.6",
         "chalk": "^5.3.0",
         "ethers": "5",
         "execa": "^8.0.1",
         "ipfs-http-client": "^60.0.1",
         "ora": "^7.0.1",
         "tsconfig": "*",
-        "viem": "^1.16.6"
+        "viem": "^1.19.9"
     },
     "devDependencies": {
-        "@commitlint/cli": "^17.8.0",
-        "@commitlint/config-conventional": "^17.8.0",
+        "@commitlint/cli": "^18.4.3",
+        "@commitlint/config-conventional": "^18.4.3",
         "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.2.3",
-        "eslint": "^8.51.0",
+        "eslint": "^8.54.0",
         "eslint-config-custom": "*",
         "eslint-config-prettier": "^9.0.0",
-        "prettier": "^3.0.3",
+        "prettier": "^3.1.0",
         "rimraf": "^5.0.5",
         "rollup-plugin-peer-deps-external": "^2.2.4",
         "rollup-plugin-typescript2": "^0.36.0",
-        "turbo": "^1.10.15",
-        "typescript": "^5.2.2"
+        "turbo": "^1.10.16",
+        "typescript": "^5.3.2"
     }
 }
