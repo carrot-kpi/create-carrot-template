@@ -63,7 +63,8 @@ export const deployTemplate = async (
                 .templateType === "kpi-token";
 
         const provider = new providers.JsonRpcProvider(
-            `http://localhost:${port}`,
+            `http://127.0.0.1:${port}`,
+            forkedChain.id,
         );
         const templatesManager = isKpiTokenTemplate
             ? new Contract(
