@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "carrot-scripts",
-    "version": "0.22.21",
+    "version": "0.23.0",
     "types": "./lib/carrot-template.d.ts",
     "keywords": [
         "ethereum",
@@ -40,22 +40,22 @@
         "carrot-scripts": "./dist/index.js"
     },
     "dependencies": {
-        "@carrot-kpi/ganache": "^0.2.0",
-        "@carrot-kpi/sdk": "^1.45.0",
+        "@carrot-kpi/sdk": "^1.45.1",
+        "@viem/anvil": "^0.0.6",
         "chalk": "^5.3.0",
         "ethers": "5",
         "execa": "^8.0.1",
         "ipfs-http-client": "^60.0.1",
         "ora": "^7.0.1",
         "tsconfig": "*",
-        "viem": "^1.19.1"
+        "viem": "^1.19.9"
     },
     "devDependencies": {
-        "@commitlint/cli": "^18.4.1",
-        "@commitlint/config-conventional": "^18.4.0",
+        "@commitlint/cli": "^18.4.3",
+        "@commitlint/config-conventional": "^18.4.3",
         "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.2.3",
-        "eslint": "^8.53.0",
+        "eslint": "^8.54.0",
         "eslint-config-custom": "*",
         "eslint-config-prettier": "^9.0.0",
         "prettier": "^3.1.0",
@@ -63,6 +63,6 @@
         "rollup-plugin-peer-deps-external": "^2.2.4",
         "rollup-plugin-typescript2": "^0.36.0",
         "turbo": "^1.10.16",
-        "typescript": "^5.2.2"
+        "typescript": "^5.3.2"
     }
 }

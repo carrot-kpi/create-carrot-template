@@ -15,15 +15,14 @@ import type {
     GetContractReturnType,
 } from "viem";
 import {
-    createPublicClient,
     http,
     createWalletClient,
     getContract,
-    createTestClient,
     parseEther,
+    createPublicClient,
 } from "viem";
-import ganache from "@carrot-kpi/ganache";
 import { privateKeyToAccount } from "viem/accounts";
+import { createAnvil } from "@viem/anvil";
 import { Contract, providers } from "ethers";
 
 const MNEMONIC = "test test test test test test test test test test test junk";
@@ -85,71 +84,61 @@ export const startLocalNode = async (
             functionName: "owner",
         });
 
-        const ganacheServer = ganache.server({
-            fork: { url: forkURL, deleteCache: true },
-            chain: {
-                chainId: forkedChain.id,
-                networkId: forkedChain.id,
-            },
-            wallet: {
-                totalAccounts: 1,
-                mnemonic: MNEMONIC,
-                hdPath: DERIVATION_PATH,
-                unlockedAccounts: [kpiTokensManagerOwner, oraclesManagerOwner],
-            },
-            logging: {
-                quiet: true,
-            },
+        const anvil = createAnvil({
+            port: PORT,
+            forkUrl: forkURL,
+            noStorageCaching: true,
+            chainId: forkedChain.id,
+            forkChainId: forkedChain.id,
+            mnemonic: MNEMONIC,
+            derivationPath: DERIVATION_PATH,
+            accounts: 1,
+            forkBlockNumber: await forkPublicClient.getBlockNumber(),
+            host: "0.0.0.0",
         });
-        await new Promise<void>((resolve, reject) => {
-            ganacheServer.once("open").then(resolve);
-            ganacheServer.listen(PORT).catch(reject);
-        });
+
+        await anvil.start();
         const nodeTransport = http(`http://127.0.0.1:${PORT}`);
         localNodeClient = createPublicClient({
             transport: nodeTransport,
+            chain: forkedChain,
         });
 
-        const initialAccounts =
-            await ganacheServer.provider.getInitialAccounts();
-        const [accountAddress, initialAccount] =
-            Object.entries(initialAccounts)[0];
-
-        mainAccountSecretKey = initialAccount.secretKey as Hex;
+        mainAccountSecretKey =
+            "0x3676a8cf8bac6b3094dc63fffc187d688f0ebe2eaf3a23a6d01e50fbfd39ff1e" as Hex;
         const account = privateKeyToAccount(mainAccountSecretKey);
+
         mainAccountWalletClient = createWalletClient({
             account,
             transport: nodeTransport,
             chain: forkedChain,
         });
 
-        // just in case, deal some eth to the manager owners
-        const testClient = createTestClient({
-            transport: nodeTransport,
-            mode: "ganache",
-        });
-        await testClient.setBalance({
-            address: kpiTokensManagerOwner,
-            value: parseEther("100"),
-        });
-        await testClient.setBalance({
-            address: oraclesManagerOwner,
-            value: parseEther("100"),
-        });
-
-        // and allow the main account as a creator
-        const provider = new providers.JsonRpcProvider(
-            `http://localhost:${PORT}`,
+        const testClient = new providers.JsonRpcProvider(
+            `http://127.0.0.1:${PORT}`,
+            forkedChain.id,
         );
+        // just in case, deal some eth to the manager owners
+        await testClient.send("anvil_setBalance", [
+            kpiTokensManagerOwner,
+            parseEther("100").toString(),
+        ]);
+        await testClient.send("anvil_setBalance", [
+            oraclesManagerOwner,
+            parseEther("100").toString(),
+        ]);
+        await testClient.send("anvil_autoImpersonateAccount", [true]);
+
+        // allow the main account as a creator
         const factory = new Contract(
             chainAddresses.factory,
             FACTORY_ABI,
-            await provider.getSigner(kpiTokensFactoryOwner),
+            await testClient.getSigner(kpiTokensFactoryOwner),
         );
-        await factory.allowCreator(accountAddress);
+        await factory.allowCreator(account.address);
 
         mainAccountInitialBalance = await localNodeClient.getBalance({
-            address: accountAddress as Address,
+            address: account.address,
         });
 
         kpiTokensManager = getContract({

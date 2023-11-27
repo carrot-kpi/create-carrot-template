@@ -8,15 +8,15 @@
         "format": "prettier --write ."
     },
     "dependencies": {
-        "@typescript-eslint/eslint-plugin": "^6.10.0",
-        "@typescript-eslint/parser": "^6.10.0",
-        "eslint": "^8.53.0",
+        "@typescript-eslint/eslint-plugin": "^6.13.0",
+        "@typescript-eslint/parser": "^6.13.0",
+        "eslint": "^8.54.0",
         "eslint-config-prettier": "^9.0.0",
         "eslint-config-turbo": "^1.10.16",
         "eslint-plugin-prettier": "^5.0.1"
     },
     "devDependencies": {
-        "prettier": "^3.0.3"
+        "prettier": "^3.1.0"
     },
     "publishConfig": {
         "access": "public"
