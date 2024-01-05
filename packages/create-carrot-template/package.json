@@ -47,6 +47,9 @@
         "validate-npm-package-name": "^5.0.0"
     },
     "devDependencies": {
-        "eslint-config-custom": "*"
+        "eslint-config-custom": "*",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.1.2",
+        "eslint-plugin-turbo": "^1.11.3"
     }
 }
