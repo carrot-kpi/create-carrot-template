@@ -40,31 +40,31 @@
         "carrot-scripts": "./dist/index.js"
     },
     "dependencies": {
-        "@carrot-kpi/sdk": "^1.46.0",
-        "@viem/anvil": "^0.0.6",
+        "@carrot-kpi/sdk": "^1.51.0",
+        "@viem/anvil": "^0.0.7",
         "chalk": "^5.3.0",
         "ethers": "5",
         "execa": "^8.0.1",
         "ipfs-http-client": "^60.0.1",
-        "ora": "^7.0.1",
+        "ora": "^8.0.1",
         "tsconfig": "*",
-        "viem": "^1.19.9"
+        "viem": "^2.7.16"
     },
     "devDependencies": {
-        "@commitlint/cli": "^18.4.4",
-        "@commitlint/config-conventional": "^18.4.4",
+        "@commitlint/cli": "^19.0.3",
+        "@commitlint/config-conventional": "^19.0.3",
         "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.2.3",
-        "eslint": "^8.56.0",
+        "eslint": "^8.57.0",
         "eslint-config-custom": "*",
         "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-prettier": "^5.1.2",
-        "eslint-plugin-turbo": "^1.11.3",
-        "prettier": "^3.1.1",
+        "eslint-plugin-prettier": "^5.1.3",
+        "eslint-plugin-turbo": "^1.12.4",
+        "prettier": "^3.2.5",
         "rimraf": "^5.0.5",
         "rollup-plugin-peer-deps-external": "^2.2.4",
         "rollup-plugin-typescript2": "^0.36.0",
-        "turbo": "^1.11.3",
+        "turbo": "^1.12.4",
         "typescript": "^5.3.3"
     }
 }
