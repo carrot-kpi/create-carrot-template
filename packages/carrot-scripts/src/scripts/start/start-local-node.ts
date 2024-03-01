@@ -1,13 +1,12 @@
 import {
-    CHAIN_ADDRESSES,
-    ChainId,
+    SUPPORTED_CHAIN,
+    SupportedChain,
     FACTORY_ABI,
     KPI_TOKENS_MANAGER_ABI,
     ORACLES_MANAGER_ABI,
 } from "@carrot-kpi/sdk";
 import ora from "ora";
 import type {
-    Chain,
     Hex,
     Address,
     PublicClient,
@@ -36,13 +35,11 @@ export interface StartLocalNodeReturnValue {
     mainAccountInitialBalance: bigint;
     kpiTokensManager: GetContractReturnType<
         typeof KPI_TOKENS_MANAGER_ABI,
-        PublicClient,
         WalletClient
     >;
     kpiTokensManagerOwner: Address;
     oraclesManager: GetContractReturnType<
         typeof ORACLES_MANAGER_ABI,
-        PublicClient,
         WalletClient
     >;
     oraclesManagerOwner: Address;
@@ -52,13 +49,13 @@ export interface StartLocalNodeReturnValue {
 export const startLocalNode = async (
     forkURL: string,
     forkPublicClient: PublicClient,
-    forkedChain: Chain,
+    forkedChain: SupportedChain,
 ): Promise<StartLocalNodeReturnValue> => {
     const nodeSpinner = ora();
     nodeSpinner.start(
         `Starting up local node with fork URL ${forkURL} and chain id ${forkedChain.id}`,
     );
-    const chainAddresses = CHAIN_ADDRESSES[forkedChain.id as ChainId];
+    const chainAddresses = SUPPORTED_CHAIN[forkedChain.id];
     let localNodeClient: PublicClient,
         kpiTokensManager,
         kpiTokensManagerOwner,
@@ -69,17 +66,17 @@ export const startLocalNode = async (
         mainAccountInitialBalance: bigint;
     try {
         const kpiTokensFactoryOwner = await forkPublicClient.readContract({
-            address: chainAddresses.factory,
+            address: chainAddresses.contracts.factory.address,
             abi: FACTORY_ABI,
             functionName: "owner",
         });
         kpiTokensManagerOwner = await forkPublicClient.readContract({
-            address: chainAddresses.kpiTokensManager,
+            address: chainAddresses.contracts.kpiTokensManager.address,
             abi: KPI_TOKENS_MANAGER_ABI,
             functionName: "owner",
         });
         oraclesManagerOwner = await forkPublicClient.readContract({
-            address: chainAddresses.oraclesManager,
+            address: chainAddresses.contracts.oraclesManager.address,
             abi: KPI_TOKENS_MANAGER_ABI,
             functionName: "owner",
         });
@@ -131,7 +128,7 @@ export const startLocalNode = async (
 
         // allow the main account as a creator
         const factory = new Contract(
-            chainAddresses.factory,
+            chainAddresses.contracts.factory.address,
             FACTORY_ABI,
             await testClient.getSigner(kpiTokensFactoryOwner),
         );
@@ -142,16 +139,14 @@ export const startLocalNode = async (
         });
 
         kpiTokensManager = getContract({
-            address: chainAddresses.kpiTokensManager,
+            address: chainAddresses.contracts.kpiTokensManager.address,
             abi: KPI_TOKENS_MANAGER_ABI,
-            walletClient: mainAccountWalletClient,
-            publicClient: localNodeClient,
+            client: mainAccountWalletClient,
         });
         oraclesManager = getContract({
-            address: chainAddresses.oraclesManager,
+            address: chainAddresses.contracts.oraclesManager.address,
             abi: ORACLES_MANAGER_ABI,
-            walletClient: mainAccountWalletClient,
-            publicClient: localNodeClient,
+            client: mainAccountWalletClient,
         });
 
         nodeSpinner.succeed(`Started up local node with fork URL ${forkURL}`);

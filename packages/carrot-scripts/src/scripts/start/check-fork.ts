@@ -1,14 +1,11 @@
 import ora from "ora";
-import * as chainsObject from "viem/chains";
-import type { Chain, PublicClient } from "viem";
+import type { PublicClient } from "viem";
 import { createPublicClient, http } from "viem";
-import { ChainId } from "@carrot-kpi/sdk";
-
-const chains = Object.values(chainsObject);
+import { ChainId, SUPPORTED_CHAIN, type SupportedChain } from "@carrot-kpi/sdk";
 
 export interface CheckForkReturnValue {
     forkPublicClient: PublicClient;
-    forkedChain: Chain;
+    forkedChain: SupportedChain;
 }
 
 export const checkFork = async (
@@ -16,16 +13,16 @@ export const checkFork = async (
 ): Promise<CheckForkReturnValue> => {
     const forkCheckSpinner = ora();
     forkCheckSpinner.start(`Checking forked network chain id`);
-    let forkedChain: Chain, forkPublicClient: PublicClient;
+    let forkedChain: SupportedChain, forkPublicClient: PublicClient;
     try {
         forkPublicClient = createPublicClient({
             transport: http(forkUrl),
         });
         const chainId = await forkPublicClient.getChainId();
-        const chain = chains.find((chain) => chain.id === chainId) as
-            | Chain
-            | undefined;
-        if (!(chainId in ChainId) || !chain) {
+        const supportedChain = Object.values(SUPPORTED_CHAIN).find(
+            (supportedChain) => supportedChain.id === chainId,
+        );
+        if (!supportedChain) {
             forkCheckSpinner.fail(`Incompatible forked chain id ${chainId}`);
             console.log();
             console.log(
@@ -35,7 +32,7 @@ export const checkFork = async (
 
             process.exit(0);
         }
-        forkedChain = chain;
+        forkedChain = supportedChain;
         forkCheckSpinner.succeed(
             `Compatible forked chain id ${forkedChain.id}`,
         );

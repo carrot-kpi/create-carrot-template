@@ -1,11 +1,11 @@
 import {
-    CHAIN_ADDRESSES,
-    ChainId,
+    SUPPORTED_CHAIN,
     FACTORY_ABI,
     KPI_TOKENS_MANAGER_ABI,
+    SupportedChain,
 } from "@carrot-kpi/sdk";
 import ora from "ora";
-import type { Address, Chain, PublicClient, WalletClient } from "viem";
+import type { Address, PublicClient, WalletClient } from "viem";
 import { getContract } from "viem";
 import { readFileSync } from "fs";
 import { resolve } from "path";
@@ -30,7 +30,7 @@ export interface CustomContract {
 }
 
 export const deployTemplate = async (
-    forkedChain: Chain,
+    forkedChain: SupportedChain,
     deployerWalletClient: WalletClient,
     kpiTokensManager: StartLocalNodeReturnValue["kpiTokensManager"],
     kpiTokensManagerOwner: Address,
@@ -40,7 +40,7 @@ export const deployTemplate = async (
     specificationCid: string,
     port: number,
 ): Promise<DeployTemplateReturnValue> => {
-    const chainAddresses = CHAIN_ADDRESSES[forkedChain.id as ChainId];
+    const chain = SUPPORTED_CHAIN[forkedChain.id];
 
     const templateDeploymentSpinner = ora();
     templateDeploymentSpinner.start(
@@ -53,9 +53,9 @@ export const deployTemplate = async (
         predictedTemplateId;
     try {
         factory = getContract({
-            address: chainAddresses.factory,
+            address: chain.contracts.factory.address,
             abi: FACTORY_ABI,
-            walletClient: deployerWalletClient,
+            client: deployerWalletClient,
         });
 
         const isKpiTokenTemplate =
@@ -68,12 +68,12 @@ export const deployTemplate = async (
         );
         const templatesManager = isKpiTokenTemplate
             ? new Contract(
-                  chainAddresses.kpiTokensManager,
+                  chain.contracts.kpiTokensManager.address,
                   KPI_TOKENS_MANAGER_ABI,
                   await provider.getSigner(kpiTokensManagerOwner),
               )
             : new Contract(
-                  chainAddresses.oraclesManager,
+                  chain.contracts.oraclesManager.address,
                   KPI_TOKENS_MANAGER_ABI,
                   await provider.getSigner(oraclesManagerOwner),
               );

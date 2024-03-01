@@ -1,18 +1,11 @@
-import {
-    Address,
-    Chain,
-    Hex,
-    PublicClient,
-    WalletClient,
-    formatUnits,
-} from "viem";
+import { Address, Hex, PublicClient, WalletClient, formatUnits } from "viem";
 import { resolve } from "path";
 import ora from "ora";
 import { DeployTemplateReturnValue } from "./deploy-template";
 import { Writable } from "stream";
 import { clearConsole } from "../../utils/index.js";
 import chalk from "chalk";
-import { CHAIN_ADDRESSES, ChainId } from "@carrot-kpi/sdk";
+import { SUPPORTED_CHAIN, ChainId, SupportedChain } from "@carrot-kpi/sdk";
 
 const START_SCRIPT_LOCATION = resolve(
     "./packages/frontend/.cct/start-playground.js",
@@ -72,7 +65,7 @@ const printInformation = (
 };
 
 export const startPlayground = async (
-    forkedChain: Chain,
+    forkedChain: SupportedChain,
     predictedTemplateId: number,
     mainAccountSecretKey: Hex,
     frontendGlobals: DeployTemplateReturnValue["frontendGlobals"],
@@ -86,7 +79,7 @@ export const startPlayground = async (
     ipfsRpcAPIPort: number,
     deploymentAccountInitialBalance: bigint,
 ) => {
-    const chainAddresses = CHAIN_ADDRESSES[forkedChain.id as ChainId];
+    const chainAddresses = SUPPORTED_CHAIN[forkedChain.id as ChainId];
 
     const frontendSpinner = ora();
     frontendSpinner.start("Starting up local playground");
@@ -134,9 +127,9 @@ export const startPlayground = async (
                             deploymentAccountInitialBalance,
                             forkedChain.nativeCurrency.decimals,
                         ),
-                        chainAddresses.factory,
-                        chainAddresses.kpiTokensManager,
-                        chainAddresses.oraclesManager,
+                        chainAddresses.contracts.factory.address,
+                        chainAddresses.contracts.kpiTokensManager.address,
+                        chainAddresses.contracts.oraclesManager.address,
                         forkedChain.contracts?.multicall3?.address,
                         templateAddress,
                         customContracts,
